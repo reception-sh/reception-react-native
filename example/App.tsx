@@ -221,11 +221,11 @@ export default function App() {
       />
       <Button
         title="Enable test notifications"
-        onPress={() =>
-          void run(async () => {
-            await Notifications.requestPermissionsAsync();
-          }, 'Notification permission requested')
-        }
+        onPress={() => {
+          void Notifications.requestPermissionsAsync()
+            .then(({ status }) => setStatus(`Notifications: ${status}`))
+            .catch(() => setStatus('Notification permission failed'));
+        }}
       />
       <Button
         title="Reload JavaScript"
