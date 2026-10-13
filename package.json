@@ -31,9 +31,9 @@
     "format:check": "prettier --check ."
   },
   "peerDependencies": {
-    "expo": ">=55",
-    "react": ">=19",
-    "react-native": ">=0.83"
+    "expo": "57.0.28",
+    "react": "19.2.3",
+    "react-native": "0.86.3"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
