@@ -4,7 +4,7 @@ Native in-app support chat, with replies managed in the Reception dashboard.
 The chat runs entirely in the official Reception iOS SDK.
 
 Supports Expo SDK 55–57 with their default React Native and React versions.
-Peer ranges allow Expo `>=55 <58`, React Native `>=0.83 <0.87`, and React `>=19.2 <20`.
+Requires Expo SDK 55 or later (React Native 0.83+, React 19.2+); verified with Expo SDK 55, 56 and 57.
 Use the versions selected by your Expo SDK.
 
 Verified with fresh iOS development builds and live message/reply delivery:
