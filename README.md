@@ -3,7 +3,18 @@
 Native in-app support chat, with replies managed in the Reception dashboard.
 The chat runs entirely in the official Reception iOS SDK.
 
-Verified with Expo 57.0.28, React Native 0.86.3 and React 19.2.3.
+Supports Expo SDK 55–57 with their default React Native and React versions.
+Peer ranges allow Expo `>=55 <58`, React Native `>=0.83 <0.87`, and React `>=19.2 <20`.
+Use the versions selected by your Expo SDK.
+
+Verified with fresh iOS development builds and live message/reply delivery:
+
+| Expo    | React Native | React  |
+| ------- | ------------ | ------ |
+| 55.0.31 | 0.83.10      | 19.2.0 |
+| 56.0.23 | 0.85.3       | 19.2.3 |
+| 57.0.28 | 0.86.3       | 19.2.3 |
+
 Requires iOS 17+, Xcode 26, and Expo Modules. Use a development build; Expo Go is
 unsupported. Android and web calls do nothing, warn once, and return default state.
 
@@ -17,8 +28,9 @@ Add `"react-native-reception"` to `expo.plugins` in your app config, then build 
 `npx expo run:ios`. The plugin sets the minimum iOS version to 17; no Podfile edits
 or `use_frameworks!` are needed. Existing bare React Native apps need
 [Expo Modules installed](https://docs.expo.dev/bare/installing-expo-modules/) and
-an iOS 17 deployment target. Expo’s automatic installer does not yet recognize this
-verified version combination; use its manual installation guide for bare apps.
+an iOS 17 deployment target. `npx install-expo-modules` was verified on React Native
+0.83.10 with Expo 55. For newer stacks the installer does not recognize yet, follow
+Expo’s manual installation guide.
 
 Configure during startup, before showing support:
 

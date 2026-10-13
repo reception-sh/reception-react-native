@@ -40,9 +40,10 @@ callback races. Verify actual chat and backend operations in the example app;
 record commands and observed results. Build success does not prove runtime behavior.
 Pass `npm run test:native -- <simulator UUID>` when more than one simulator is booted.
 
-The bare RN 0.86.3 verification used Expo 57's manual installation: the automatic
-`install-expo-modules` tool did not recognize that combination. Set the app's target
-to iOS 17 and use `internal import Expo` in AppDelegate, matching Expo's generated
+Bare RN 0.83.10 with Expo 55.0.31 passes `npx install-expo-modules --non-interactive`,
+including pod install. The automatic installer does not recognize RN 0.86.3 / Expo 57
+yet; that stack was verified with Expo’s manual installation. Set the app’s target
+to iOS 17. For Expo 57 use `internal import Expo` in AppDelegate, matching its generated
 module provider. Reception itself needs no additional Podfile changes.
 
 `configureForTesting` exists only in native Debug builds, accepts loopback URLs,
