@@ -68,3 +68,28 @@ test('prototype keys never count as supported appearance fields', () => {
     validateAppearance(JSON.parse('{"__proto__":{},"toString":"private"}'), {}),
   ).toEqual({});
 });
+
+test('all six color options accept light/dark hex pairs', () => {
+  const pair = { light: '#123456', dark: '#abcdef80' };
+  const value = {
+    accentColor: pair,
+    onAccentColor: pair,
+    chatBackground: pair,
+    incomingBackground: pair,
+    incomingForeground: pair,
+    welcomeIconColor: pair,
+  };
+  expect(validateAppearance(value, {})).toEqual(value);
+});
+
+test.each([
+  { light: '#112233' },
+  { dark: '#445566' },
+  { light: '#112233', dark: 'red' },
+  { light: '#112233', dark: '#445566', extra: true },
+  { light: null, dark: '#445566' },
+])('invalid dynamic color retains the previous complete pair: %p', (pair) => {
+  const previous = { accentColor: { light: '#abcdef', dark: '#123456' } };
+  expect(validateAppearance({ accentColor: pair }, previous)).toEqual(previous);
+  expect(console.warn).toHaveBeenCalledTimes(1);
+});

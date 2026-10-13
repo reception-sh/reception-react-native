@@ -3,6 +3,7 @@
 Native in-app support chat, with replies managed in the Reception dashboard.
 The chat runs entirely in the official Reception iOS SDK.
 
+Verified with Expo 57.0.28, React Native 0.86.3 and React 19.2.3.
 Requires iOS 17+, Xcode 26, and Expo Modules. Use a development build; Expo Go is
 unsupported. Android and web calls do nothing, warn once, and return default state.
 
@@ -27,13 +28,17 @@ await Reception.openChat();
 ```
 
 Methods return promises so native work runs on the main queue. Await configuration
-before reading `isConfigured`. State and setting getters update from native snapshots;
-a JS reload restores them asynchronously. Assign complete appearance objects, not
+before reading `isConfigured`. Setting getters reflect valid assignments immediately; native validation may
+then reconcile them. Live state updates from native snapshots, and a JavaScript
+reload restores state asynchronously. Assign complete appearance objects, not
 nested properties. Callback assignments replace the previous callback; use `null`
 to remove one.
 
 ```typescript
-Reception.appearance = { accentColor: '#8A2BE2', showsCloseButton: true };
+Reception.appearance = {
+  accentColor: { light: '#8A2BE2', dark: '#C89FFF' },
+  showsCloseButton: true,
+};
 Reception.onPaywall = (id) => showYourPaywall(id);
 Reception.paywalls = [{ id: 'plans', title: 'Plans' }];
 Reception.paywallAvailability = async (id) => canShowYourPaywall(id);
@@ -41,7 +46,8 @@ Reception.paywallAvailability = async (id) => canShowYourPaywall(id);
 
 Paywall checks fail closed after five seconds or a JS reload. Register callbacks again
 at startup. `availablePaywalls` updates asynchronously; observe it with
-`addAvailablePaywallsListener`. Colors accept `#RRGGBB` or `#RRGGBBAA`. Image options
+`addAvailablePaywallsListener`. Each color accepts `#RRGGBB`, `#RRGGBBAA`, or a `{ light, dark }` pair of
+those hex strings. Pairs follow the native color scheme without JavaScript updates. Image options
 use names from the host iOS asset catalog. Invalid appearance fields log and retain
 the previous field; omitted fields restore Swift defaults. Published dashboard
 appearance takes precedence unless `usesRemoteAppearance` is false.

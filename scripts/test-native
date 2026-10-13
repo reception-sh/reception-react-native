@@ -17,6 +17,7 @@ try {
       '-warnings-as-errors',
       '-parse-as-library',
       'ios/PaywallRequests.swift',
+      'ios/PushToken.swift',
       'tests/PaywallRequestsTests.swift',
       '-o',
       binary,
@@ -24,6 +25,40 @@ try {
     { cwd: root, stdio: 'inherit' },
   );
   execFileSync(binary, { stdio: 'inherit', timeout: 15000 });
+  const simulator = process.argv[2] ?? 'booted';
+  const sdk = execFileSync(
+    'xcrun',
+    ['--sdk', 'iphonesimulator', '--show-sdk-path'],
+    { encoding: 'utf8' },
+  ).trim();
+  const architecture = process.arch === 'arm64' ? 'arm64' : 'x86_64';
+  const colors = `${scratch}/color-tests`;
+  execFileSync(
+    'xcrun',
+    [
+      '--sdk',
+      'iphonesimulator',
+      'swiftc',
+      '-swift-version',
+      '5',
+      '-strict-concurrency=complete',
+      '-warnings-as-errors',
+      '-parse-as-library',
+      '-target',
+      `${architecture}-apple-ios17.0-simulator`,
+      '-sdk',
+      sdk,
+      'ios/ReceptionColor.swift',
+      'tests/ReceptionColorTests.swift',
+      '-o',
+      colors,
+    ],
+    { cwd: root, stdio: 'inherit' },
+  );
+  execFileSync('xcrun', ['simctl', 'spawn', simulator, colors], {
+    stdio: 'inherit',
+    timeout: 15000,
+  });
 } finally {
   await rm(scratch, { recursive: true, force: true });
 }

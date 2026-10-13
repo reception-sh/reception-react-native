@@ -5,6 +5,7 @@ export { ReceptionError } from './ReceptionError';
 export { useReceptionUnreadCount, useReceptionChatOpen } from './hooks';
 export type {
   Appearance,
+  AppearanceColor,
   Identity,
   LogLevel,
   PaywallAvailability,

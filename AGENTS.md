@@ -32,12 +32,13 @@ SDK pin. These steps require an explicit release request.
 
 ## Verification
 
-Run `npm run typecheck`, `npm run lint`, `npm test`, `npm run test:native` (macOS), `npm run check:ios`, and
+Run `npm run typecheck`, `npm run lint`, `npm test`, `npm run test:native` (macOS with a booted iOS simulator), `npm run check:ios`, and
 `npm pack`. Test the tarball in a fresh Expo app with prebuild, pod install and an
 iOS simulator build without Podfile edits. Confirm Android autolinking excludes us.
 Focused tests cover validation, unsupported platforms, state, hooks, errors and
 callback races. Verify actual chat and backend operations in the example app;
 record commands and observed results. Build success does not prove runtime behavior.
+Pass `npm run test:native -- <simulator UUID>` when more than one simulator is booted.
 
 `configureForTesting` exists only in native Debug builds, accepts loopback URLs,
 and is deliberately absent from the package's TypeScript API. Only the example

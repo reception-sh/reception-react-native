@@ -14,8 +14,7 @@ internal enum ReceptionAppearance {
     var style = Reception.Appearance()
     var accepted = values
     func color(_ key: String) -> Color? {
-      guard let text = values[key] as? String else { return nil }
-      return hexColor(text)
+      ReceptionColor.decode(values[key]).map { Color(uiColor: $0) }
     }
     style.accentColor = color("accentColor") ?? .accentColor
     style.onAccentColor = color("onAccentColor")
@@ -95,14 +94,4 @@ internal enum ReceptionAppearance {
     Reception.shared.appearance = style
   }
 
-  private static func hexColor(_ text: String) -> Color? {
-    guard text.range(of: "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$", options: .regularExpression) != nil,
-      let value = UInt32(text.dropFirst(), radix: 16)
-    else { return nil }
-    let rgba = text.count == 7 ? (value << 8) | 255 : value
-    return Color(
-      .sRGB, red: Double((rgba >> 24) & 255) / 255,
-      green: Double((rgba >> 16) & 255) / 255, blue: Double((rgba >> 8) & 255) / 255,
-      opacity: Double(rgba & 255) / 255)
-  }
 }

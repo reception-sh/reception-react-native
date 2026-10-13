@@ -4,6 +4,10 @@ import Foundation
 struct PaywallRequestsTests {
   @MainActor
   static func main() async {
+    precondition(PushToken.decode("AAbb01") == Data([0xaa, 0xbb, 1]))
+    for token in ["", "a", "zz", "0a 1b", String(repeating: "a", count: 514)] {
+      precondition(PushToken.decode(token) == nil)
+    }
     let requests = PaywallRequests()
     let missing = await requests.check("missing")
     precondition(!missing, "No JS runtime must fail closed")

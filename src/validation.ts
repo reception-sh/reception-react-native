@@ -8,6 +8,12 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
 }
 const hex = (value: unknown) =>
   typeof value === 'string' && /^#[\da-f]{6}([\da-f]{2})?$/i.test(value);
+const color = (value: unknown) =>
+  hex(value) ||
+  (isRecord(value) &&
+    Object.keys(value).length === 2 &&
+    hex(value.light) &&
+    hex(value.dark));
 const text = (value: unknown) => typeof value === 'string';
 const boolean = (value: unknown) => typeof value === 'boolean';
 const finite = (value: unknown): value is number =>
@@ -19,22 +25,22 @@ const oneOf =
   (value: unknown) =>
     values.includes(value);
 const validators: Record<keyof Appearance, (value: unknown) => boolean> = {
-  accentColor: hex,
-  onAccentColor: nullable(hex),
+  accentColor: color,
+  onAccentColor: nullable(color),
   title: text,
   welcomeTitle: text,
   welcomeText: text,
   showsCloseButton: boolean,
-  chatBackground: nullable(hex),
-  incomingBackground: nullable(hex),
-  incomingForeground: nullable(hex),
+  chatBackground: nullable(color),
+  incomingBackground: nullable(color),
+  incomingForeground: nullable(color),
   preferredColorScheme: oneOf(null, 'light', 'dark'),
   closeIcon: oneOf('xmark', 'chevron.down', 'arrow.down'),
   closeImage: nullable(text),
   fontDesign: oneOf(null, 'default', 'rounded', 'serif', 'monospaced'),
   fontFamily: nullable(text),
   fadesOlderMessages: boolean,
-  welcomeIconColor: nullable(hex),
+  welcomeIconColor: nullable(color),
   welcomeIconSize: nullable(
     (value) => finite(value) && value >= 16 && value <= 160,
   ),

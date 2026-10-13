@@ -22,17 +22,19 @@ export type WelcomeIcon =
   | { image: string }
   | { hidden: true };
 
+export type AppearanceColor = string | { light: string; dark: string };
+
 /** Assign a complete value; omitted fields use Swift SDK defaults. Images are iOS asset catalog names. */
 export interface Appearance {
-  accentColor?: string;
-  onAccentColor?: string | null;
+  accentColor?: AppearanceColor;
+  onAccentColor?: AppearanceColor | null;
   title?: string;
   welcomeTitle?: string;
   welcomeText?: string;
   showsCloseButton?: boolean;
-  chatBackground?: string | null;
-  incomingBackground?: string | null;
-  incomingForeground?: string | null;
+  chatBackground?: AppearanceColor | null;
+  incomingBackground?: AppearanceColor | null;
+  incomingForeground?: AppearanceColor | null;
   preferredColorScheme?: 'light' | 'dark' | null;
   closeIcon?: 'xmark' | 'chevron.down' | 'arrow.down';
   closeImage?: string | null;
@@ -40,7 +42,7 @@ export interface Appearance {
   fontFamily?: string | null;
   fadesOlderMessages?: boolean;
   welcomeIcon?: WelcomeIcon | null;
-  welcomeIconColor?: string | null;
+  welcomeIconColor?: AppearanceColor | null;
   welcomeIconSize?: number | null;
   welcomeIconCornerRadius?: number;
   welcomeIconOffset?: { x: number; y: number };
