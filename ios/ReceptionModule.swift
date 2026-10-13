@@ -88,6 +88,17 @@ public final class ReceptionModule: Module, @unchecked Sendable {
           userInfo: ["reception": ["conversationId": conversationId]], openChat: openChat)
       }
     }.runOnQueue(.main)
+    AsyncFunction("handleExpoNotification") { (id: String, conversationId: String, openChat: Bool) in
+      MainActor.assumeIsolated {
+        switch NotificationRouting.shared.action(for: id, openChat: openChat) {
+        case .receive, .receiveAndOpen:
+          Reception.shared.handlePushNotification(
+            userInfo: ["reception": ["conversationId": conversationId]], openChat: openChat)
+        case .open: Reception.shared.openChat()
+        case .ignore: break
+        }
+      }
+    }.runOnQueue(.main)
 
     AsyncFunction("setAppearance") { (value: String, revision: Int, promise: Promise) in
       MainActor.assumeIsolated {

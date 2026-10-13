@@ -1,6 +1,7 @@
 import { native, warnUnavailable } from './NativeReception';
 import { ReceptionError } from './ReceptionError';
 import { updateSnapshot } from './state';
+import { pushSessionReset } from './pushSession';
 import { isRecord, warnInvalid } from './validation';
 import type { Identity, PushEnvironment } from './types';
 
@@ -72,7 +73,10 @@ export const methods = {
   },
   async logout(): Promise<void> {
     await call(async () => {
-      if (native) updateSnapshot(await native.logout());
+      if (native) {
+        updateSnapshot(await native.logout());
+        pushSessionReset();
+      }
     });
   },
   async deleteData(): Promise<void> {
@@ -81,6 +85,7 @@ export const methods = {
       if (result) {
         updateSnapshot(result.state);
         if (result.error) throw ReceptionError.from(result.error);
+        pushSessionReset();
       }
     });
   },

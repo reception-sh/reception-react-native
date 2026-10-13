@@ -16,19 +16,29 @@ import {
   useReceptionUnreadCount,
 } from 'react-native-reception';
 
-function notificationPayload(
-  notification: Notifications.Notification,
-): Record<string, unknown> {
-  const trigger = notification.request.trigger;
-  return trigger && 'type' in trigger && trigger.type === 'push'
-    ? (trigger.payload ?? {})
-    : (notification.request.content.data ?? {});
-}
+import {
+  startReceptionPush,
+  receptionNotificationBehavior,
+} from 'react-native-reception/expo-notifications';
+
+Notifications.setNotificationHandler({
+  handleNotification: async (notification) =>
+    receptionNotificationBehavior(notification) ?? {
+      shouldShowBanner: true,
+      shouldShowList: true,
+      shouldPlaySound: true,
+      shouldSetBadge: true,
+    },
+});
 
 export default function App() {
   const unread = useReceptionUnreadCount();
   const open = useReceptionChatOpen();
   const [embedded, setEmbedded] = useState(false);
+  const [configured, setConfigured] = useState(false);
+  useEffect(() => {
+    if (configured) return startReceptionPush();
+  }, [configured]);
   const [status, setStatus] = useState('Ready');
   const [events, setEvents] = useState<string[]>([]);
   const [available, setAvailable] = useState('');
@@ -55,25 +65,8 @@ export default function App() {
     const paywalls = Reception.addAvailablePaywallsListener((values) =>
       setAvailable(values.map((value) => value.id).join(', ')),
     );
-    const received = Notifications.addNotificationReceivedListener(
-      (notification) => {
-        void Reception.handlePushNotification(
-          notificationPayload(notification),
-          { openChat: false },
-        ).then((handled) => record(`push received:${handled}`));
-      },
-    );
-    const response = Notifications.addNotificationResponseReceivedListener(
-      (event) => {
-        void Reception.handlePushNotification(
-          notificationPayload(event.notification),
-        ).then((handled) => record(`push opened:${handled}`));
-      },
-    );
     return () => {
       paywalls.remove();
-      received.remove();
-      response.remove();
       Reception.onEvent = null;
       Reception.onPaywall = null;
     };
@@ -92,6 +85,7 @@ export default function App() {
     } else {
       await Reception.configure({ appId });
     }
+    setConfigured(true);
     Reception.appearance = {
       accentColor: { light: '#8A2BE2', dark: '#C89FFF' },
       chatBackground: { light: '#F5F1FA', dark: '#191024' },

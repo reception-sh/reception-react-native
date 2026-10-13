@@ -4,6 +4,16 @@ import Foundation
 struct PaywallRequestsTests {
   @MainActor
   static func main() async {
+    let routing = NotificationRouting()
+    precondition(routing.action(for: "first", openChat: false) == .receive)
+    precondition(routing.action(for: "first", openChat: false) == .ignore)
+    precondition(routing.action(for: "first", openChat: true) == .open)
+    precondition(routing.action(for: "first", openChat: true) == .ignore)
+    precondition(routing.action(for: "first", openChat: false) == .ignore)
+    precondition(routing.action(for: "cold", openChat: true) == .receiveAndOpen)
+    precondition(routing.action(for: "cold", openChat: true) == .ignore)
+    precondition(routing.action(for: "cold", openChat: false) == .ignore)
+    print("NotificationRouting: duplicate receipts, taps, out-of-order delivery and retained response checks passed")
     precondition(PushToken.decode("AAbb01") == Data([0xaa, 0xbb, 1]))
     for token in ["", "a", "zz", "0a 1b", String(repeating: "a", count: 514)] {
       precondition(PushToken.decode(token) == nil)

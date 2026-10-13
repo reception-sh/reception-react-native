@@ -53,6 +53,11 @@ export interface NativeReception {
     conversationId: string,
     openChat: boolean,
   ): Promise<boolean>;
+  handleExpoNotification(
+    id: string,
+    conversationId: string,
+    openChat: boolean,
+  ): Promise<void>;
   setAppearance(value: string, revision: number): Promise<Snapshot>;
   setUpdatesAppBadge(value: boolean, revision: number): Promise<Snapshot>;
   setUsesRemoteAppearance(value: boolean, revision: number): Promise<Snapshot>;

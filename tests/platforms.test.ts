@@ -3,6 +3,20 @@ import { initial } from './mockNative';
 afterEach(() => {
   jest.restoreAllMocks();
 });
+
+test('the main entry never loads the optional notifications dependency', async () => {
+  jest.resetModules();
+  jest.doMock('react-native', () => ({ Platform: { OS: 'ios' } }));
+  jest.doMock('expo', () => ({ requireOptionalNativeModule: () => null }));
+  const notifications = jest.fn(() => {
+    throw new Error('Optional dependency must not load');
+  });
+  jest.doMock('expo-notifications', notifications);
+  const { Reception } = await import('../src');
+  expect(Reception.isConfigured).toBe(false);
+  expect(notifications).not.toHaveBeenCalled();
+});
+
 test.each(['android', 'web'])(
   '%s never requests a native module, throws, or changes default state',
   async (platform) => {

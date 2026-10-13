@@ -18,6 +18,7 @@ try {
       '-parse-as-library',
       'ios/PaywallRequests.swift',
       'ios/PushToken.swift',
+      'ios/NotificationRouting.swift',
       'tests/PaywallRequestsTests.swift',
       '-o',
       binary,
