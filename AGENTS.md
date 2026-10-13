@@ -11,6 +11,7 @@ Extremely clean, simple, safe at the boundaries. One file, one responsibility;
 aim below 200 lines. No speculative API, dependencies, force unwraps, unsafe casts,
 `any` in TypeScript, ignored type errors, or secrets in logs. Validate JS input;
 never log identity, metadata, tokens, messages, or callback errors supplied by apps.
+Run `npm run format` after edits; `npm run lint` checks Prettier formatting.
 Use the public Swift API only. Keep all SDK access on the main actor. No Android
 native code. Unsupported platforms warn once, never throw, and retain default state.
 
@@ -21,6 +22,13 @@ Never edit vendor files. Commit SDK changes in reception-ios first, then run
 The script uses local Git objects only. `scripts/check-ios-sdk` verifies every
 vendored byte and detects added or removed files. Keep both podspecs autolinked;
 Reception remains a separate module with its own resources and MIT license.
+
+The current vendor pin is unreleased work on top of iOS 1.1.1, not the 1.1.1 tag.
+`vendor/ios-sdk.json` records the SDK-reported version, exact commit, base tag and
+release tag (null for unreleased sources). Release order: release and tag
+reception-ios 1.1.2 first, run `scripts/sync-ios-sdk 1.1.2`, verify the tarball, then
+release react-native-reception. Never publish an npm release from an unreleased
+SDK pin. These steps require an explicit release request.
 
 ## Verification
 

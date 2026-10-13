@@ -45,13 +45,21 @@ try {
     await readFile(resolve(scratch, 'Sources/Reception/Version.swift'), 'utf8')
   ).match(/static let current = "([^"]+)"/)?.[1];
   if (!version) throw new Error('SDK version missing.');
+  const basedOnTag = git('describe', '--tags', '--abbrev=0', commit);
+  const releaseTag = git('tag', '--points-at', commit)
+    .split('\n')
+    .includes(version)
+    ? version
+    : null;
   await writeFile(
     resolve(root, 'vendor/ios-sdk.json'),
-    `${JSON.stringify({ version, commit, files: await hashes(destination) }, null, 2)}\n`,
+    `${JSON.stringify({ sdkVersion: version, releaseTag, basedOnTag, commit, files: await hashes(destination) }, null, 2)}\n`,
   );
   await mkdir(resolve(root, 'src'), { recursive: true });
   await writeFile(resolve(root, 'src/sdkVersion.ts'), versionSource(version));
-  console.log(`Pinned Reception ${version} at ${commit}`);
+  console.log(
+    `Pinned Reception ${version} (${releaseTag ?? `unreleased since ${basedOnTag}`}) at ${commit}`,
+  );
 } finally {
   await rm(scratch, { recursive: true, force: true });
 }

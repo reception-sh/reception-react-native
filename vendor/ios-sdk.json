@@ -1,5 +1,7 @@
 {
-  "version": "1.1.1",
+  "sdkVersion": "1.1.1",
+  "releaseTag": null,
+  "basedOnTag": "1.1.1",
   "commit": "988ea978b1603f0d28fd3a2ab9f6edb2e7d4a325",
   "files": {
     "LICENSE": "1c287eec2cb254623843cc5f2506683d333c5ab6199f3bb463f0b7d58ac923de",
