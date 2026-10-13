@@ -1,0 +1,23 @@
+{
+  "name": "example",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "dependencies": {
+    "expo": "~57.0.28",
+    "expo-dev-client": "~57.0.20",
+    "expo-notifications": "~57.0.22",
+    "react": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-reception": "file:.."
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.2",
+    "typescript": "~6.0.3"
+  },
+  "scripts": {
+    "start": "expo start --dev-client",
+    "ios": "expo run:ios",
+    "typecheck": "tsc --noEmit"
+  },
+  "private": true
+}

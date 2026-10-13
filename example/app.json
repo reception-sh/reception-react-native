@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "Reception Example",
+    "slug": "reception-example",
+    "scheme": "reception-example",
+    "version": "1.0.0",
+    "ios": {
+      "bundleIdentifier": "sh.reception.reactnative.example",
+      "supportsTablet": false,
+      "infoPlist": {
+        "CFBundleLocalizations": ["en", "de"],
+        "NSAppTransportSecurity": { "NSAllowsLocalNetworking": true }
+      }
+    },
+    "plugins": ["react-native-reception", "expo-notifications"]
+  }
+}
