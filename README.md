@@ -15,8 +15,10 @@ npx expo install react-native-reception
 
 Add `"react-native-reception"` to `expo.plugins` in your app config, then build with
 `npx expo run:ios`. The plugin sets the minimum iOS version to 17; no Podfile edits
-or `use_frameworks!` are needed. Existing bare React Native apps need Expo Modules
-installed and an iOS 17 deployment target.
+or `use_frameworks!` are needed. Existing bare React Native apps need
+[Expo Modules installed](https://docs.expo.dev/bare/installing-expo-modules/) and
+an iOS 17 deployment target. Expo’s automatic installer does not yet recognize this
+verified version combination; use its manual installation guide for bare apps.
 
 Configure during startup, before showing support:
 
