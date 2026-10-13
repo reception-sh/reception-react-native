@@ -9,6 +9,7 @@ internal final class ReceptionBridge {
   static var appearanceValues: [String: Any] = [:]
   private lazy var requests = PaywallRequests()
   private var connected = false
+  private var settingRevisions: [String: Int] = [:]
   private var observation = UUID()
   private var emit: ((String, [String: Any]) -> Void)?
 
@@ -43,7 +44,8 @@ internal final class ReceptionBridge {
     Self.revision += 1
     let sdk = Reception.shared
     return [
-      "revision": Self.revision, "isConfigured": Reception.isConfigured,
+      "revision": Self.revision, "settingRevisions": settingRevisions,
+      "isConfigured": Reception.isConfigured,
       "unreadCount": sdk.unreadCount, "isChatOpen": sdk.isChatOpen,
       "availablePaywalls": sdk.availablePaywalls.map { ["id": $0.id, "title": $0.title] },
       "paywalls": sdk.paywalls.map { ["id": $0.id, "title": $0.title] },
@@ -52,6 +54,14 @@ internal final class ReceptionBridge {
       "languageOverride": sdk.languageOverride as Any? ?? NSNull(),
       "logLevel": ["off", "error", "info", "debug"][Reception.logLevel.rawValue],
     ]
+  }
+
+  func applySetting(_ key: String, revision: Int, update: () -> Void) -> [String: Any] {
+    if connected && revision > (settingRevisions[key] ?? 0) {
+      update()
+      settingRevisions[key] = revision
+    }
+    return snapshot()
   }
 
   func setPaywallHandler(_ enabled: Bool) {

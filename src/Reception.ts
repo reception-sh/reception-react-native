@@ -1,7 +1,7 @@
 import { native, warnUnavailable } from './NativeReception';
 import { sdkVersion } from './sdkVersion';
-import { callbacks, bridgeFailure } from './callbacks';
-import { getSnapshot, listen, updateSnapshot } from './state';
+import { callbacks } from './callbacks';
+import { getSnapshot, listen, assignSetting } from './state';
 import { isRecord, validateAppearance, warnInvalid } from './validation';
 import { methods } from './methods';
 import type {
@@ -50,7 +50,8 @@ export const Reception = {
     return getSnapshot().paywalls;
   },
   set paywalls(value: readonly ReceptionPaywall[]) {
-    if (!native) {
+    const module = native;
+    if (!module) {
       warnUnavailable();
       return;
     }
@@ -66,7 +67,9 @@ export const Reception = {
       warnInvalid('paywalls');
       return;
     }
-    void native.setPaywalls(value).then(updateSnapshot).catch(bridgeFailure);
+    assignSetting('paywalls', value, (revision) =>
+      module.setPaywalls(value, revision),
+    );
   },
   get onEvent() {
     return callbacks.onEvent;
@@ -91,23 +94,24 @@ export const Reception = {
     return getSnapshot().appearance;
   },
   set appearance(value: Appearance) {
-    if (!native) {
+    const module = native;
+    if (!module) {
       warnUnavailable();
       return;
     }
     const valid = validateAppearance(value, getSnapshot().appearance);
     if (valid)
-      void native
-        .setAppearance(JSON.stringify(valid))
-        .then(updateSnapshot)
-        .catch(bridgeFailure);
+      assignSetting('appearance', valid, (revision) =>
+        module.setAppearance(JSON.stringify(valid), revision),
+      );
   },
   get updatesAppBadge() {
     warnUnavailable();
     return getSnapshot().updatesAppBadge;
   },
   set updatesAppBadge(value: boolean) {
-    if (!native) {
+    const module = native;
+    if (!module) {
       warnUnavailable();
       return;
     }
@@ -115,17 +119,17 @@ export const Reception = {
       warnInvalid('updatesAppBadge');
       return;
     }
-    void native
-      .setUpdatesAppBadge(value)
-      .then(updateSnapshot)
-      .catch(bridgeFailure);
+    assignSetting('updatesAppBadge', value, (revision) =>
+      module.setUpdatesAppBadge(value, revision),
+    );
   },
   get usesRemoteAppearance() {
     warnUnavailable();
     return getSnapshot().usesRemoteAppearance;
   },
   set usesRemoteAppearance(value: boolean) {
-    if (!native) {
+    const module = native;
+    if (!module) {
       warnUnavailable();
       return;
     }
@@ -133,17 +137,17 @@ export const Reception = {
       warnInvalid('usesRemoteAppearance');
       return;
     }
-    void native
-      .setUsesRemoteAppearance(value)
-      .then(updateSnapshot)
-      .catch(bridgeFailure);
+    assignSetting('usesRemoteAppearance', value, (revision) =>
+      module.setUsesRemoteAppearance(value, revision),
+    );
   },
   get languageOverride() {
     warnUnavailable();
     return getSnapshot().languageOverride;
   },
   set languageOverride(value: string | null) {
-    if (!native) {
+    const module = native;
+    if (!module) {
       warnUnavailable();
       return;
     }
@@ -151,17 +155,17 @@ export const Reception = {
       warnInvalid('languageOverride');
       return;
     }
-    void native
-      .setLanguageOverride(value)
-      .then(updateSnapshot)
-      .catch(bridgeFailure);
+    assignSetting('languageOverride', value, (revision) =>
+      module.setLanguageOverride(value, revision),
+    );
   },
   get logLevel() {
     warnUnavailable();
     return getSnapshot().logLevel;
   },
   set logLevel(value: LogLevel) {
-    if (!native) {
+    const module = native;
+    if (!module) {
       warnUnavailable();
       return;
     }
@@ -169,6 +173,8 @@ export const Reception = {
       warnInvalid('logLevel');
       return;
     }
-    void native.setLogLevel(value).then(updateSnapshot).catch(bridgeFailure);
+    assignSetting('logLevel', value, (revision) =>
+      module.setLogLevel(value, revision),
+    );
   },
 };

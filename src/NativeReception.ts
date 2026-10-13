@@ -8,14 +8,17 @@ import type {
   Subscription,
 } from './types';
 
-export interface Snapshot extends ReceptionState {
-  revision: number;
+export interface Settings {
   appearance: Appearance;
   updatesAppBadge: boolean;
   usesRemoteAppearance: boolean;
   languageOverride: string | null;
   logLevel: LogLevel;
   paywalls: readonly ReceptionPaywall[];
+}
+export interface Snapshot extends ReceptionState, Settings {
+  revision: number;
+  settingRevisions: Partial<Record<keyof Settings, number>>;
 }
 export type NativeEvent = {
   type: string;
@@ -50,12 +53,18 @@ export interface NativeReception {
     conversationId: string,
     openChat: boolean,
   ): Promise<boolean>;
-  setAppearance(value: string): Promise<Snapshot>;
-  setUpdatesAppBadge(value: boolean): Promise<Snapshot>;
-  setUsesRemoteAppearance(value: boolean): Promise<Snapshot>;
-  setLanguageOverride(value: string | null): Promise<Snapshot>;
-  setLogLevel(value: LogLevel): Promise<Snapshot>;
-  setPaywalls(value: readonly ReceptionPaywall[]): Promise<Snapshot>;
+  setAppearance(value: string, revision: number): Promise<Snapshot>;
+  setUpdatesAppBadge(value: boolean, revision: number): Promise<Snapshot>;
+  setUsesRemoteAppearance(value: boolean, revision: number): Promise<Snapshot>;
+  setLanguageOverride(
+    value: string | null,
+    revision: number,
+  ): Promise<Snapshot>;
+  setLogLevel(value: LogLevel, revision: number): Promise<Snapshot>;
+  setPaywalls(
+    value: readonly ReceptionPaywall[],
+    revision: number,
+  ): Promise<Snapshot>;
   setPaywallHandler(enabled: boolean): Promise<void>;
   setPaywallAvailability(
     enabled: boolean,
@@ -85,4 +94,8 @@ export function warnUnavailable(): void {
       ? '[Reception] Native module unavailable. Install the package and rebuild your iOS app; Expo Go is unsupported.'
       : '[Reception] Support chat is available on iOS only.',
   );
+}
+
+export function bridgeFailure(): void {
+  console.warn('[Reception] Native bridge call failed.');
 }

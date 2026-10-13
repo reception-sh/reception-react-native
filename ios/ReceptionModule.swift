@@ -89,46 +89,58 @@ public final class ReceptionModule: Module, @unchecked Sendable {
       }
     }.runOnQueue(.main)
 
-    AsyncFunction("setAppearance") { (value: String, promise: Promise) in
+    AsyncFunction("setAppearance") { (value: String, revision: Int, promise: Promise) in
       MainActor.assumeIsolated {
-        ReceptionAppearance.apply(value)
-        promise.resolve(self.bridge.snapshot() as Any)
+        promise.resolve(
+          self.bridge.applySetting("appearance", revision: revision) {
+            ReceptionAppearance.apply(value)
+          } as Any)
       }
     }.runOnQueue(.main)
-    AsyncFunction("setUpdatesAppBadge") { (value: Bool, promise: Promise) in
+    AsyncFunction("setUpdatesAppBadge") { (value: Bool, revision: Int, promise: Promise) in
       MainActor.assumeIsolated {
-        Reception.shared.updatesAppBadge = value
-        promise.resolve(self.bridge.snapshot() as Any)
+        promise.resolve(
+          self.bridge.applySetting("updatesAppBadge", revision: revision) {
+            Reception.shared.updatesAppBadge = value
+          } as Any)
       }
     }.runOnQueue(.main)
-    AsyncFunction("setUsesRemoteAppearance") { (value: Bool, promise: Promise) in
+    AsyncFunction("setUsesRemoteAppearance") { (value: Bool, revision: Int, promise: Promise) in
       MainActor.assumeIsolated {
-        Reception.shared.usesRemoteAppearance = value
-        promise.resolve(self.bridge.snapshot() as Any)
+        promise.resolve(
+          self.bridge.applySetting("usesRemoteAppearance", revision: revision) {
+            Reception.shared.usesRemoteAppearance = value
+          } as Any)
       }
     }.runOnQueue(.main)
-    AsyncFunction("setLanguageOverride") { (value: String?, promise: Promise) in
+    AsyncFunction("setLanguageOverride") { (value: String?, revision: Int, promise: Promise) in
       MainActor.assumeIsolated {
-        Reception.shared.languageOverride = value
-        promise.resolve(self.bridge.snapshot() as Any)
+        promise.resolve(
+          self.bridge.applySetting("languageOverride", revision: revision) {
+            Reception.shared.languageOverride = value
+          } as Any)
       }
     }.runOnQueue(.main)
-    AsyncFunction("setLogLevel") { (value: String, promise: Promise) in
+    AsyncFunction("setLogLevel") { (value: String, revision: Int, promise: Promise) in
       MainActor.assumeIsolated {
-        let levels: [String: Reception.LogLevel] = [
-          "off": .off, "error": .error, "info": .info, "debug": .debug,
-        ]
-        if let level = levels[value] { Reception.logLevel = level }
-        promise.resolve(self.bridge.snapshot() as Any)
+        promise.resolve(
+          self.bridge.applySetting("logLevel", revision: revision) {
+            let levels: [String: Reception.LogLevel] = [
+              "off": .off, "error": .error, "info": .info, "debug": .debug,
+            ]
+            if let level = levels[value] { Reception.logLevel = level }
+          } as Any)
       }
     }.runOnQueue(.main)
-    AsyncFunction("setPaywalls") { (value: [[String: String]], promise: Promise) in
+    AsyncFunction("setPaywalls") { (value: [[String: String]], revision: Int, promise: Promise) in
       MainActor.assumeIsolated {
-        Reception.shared.paywalls = value.compactMap { entry in
-          guard let id = entry["id"], let title = entry["title"] else { return nil }
-          return ReceptionPaywall(id: id, title: title)
-        }
-        promise.resolve(self.bridge.snapshot() as Any)
+        promise.resolve(
+          self.bridge.applySetting("paywalls", revision: revision) {
+            Reception.shared.paywalls = value.compactMap { entry in
+              guard let id = entry["id"], let title = entry["title"] else { return nil }
+              return ReceptionPaywall(id: id, title: title)
+            }
+          } as Any)
       }
     }.runOnQueue(.main)
     AsyncFunction("setPaywallHandler") { (enabled: Bool) in

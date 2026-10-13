@@ -1,4 +1,4 @@
-import { native, warnUnavailable } from './NativeReception';
+import { native, warnUnavailable, bridgeFailure } from './NativeReception';
 import { ReceptionError } from './ReceptionError';
 import { updateSnapshot } from './state';
 import { warnInvalid } from './validation';
@@ -8,9 +8,6 @@ let eventHandler: ((event: ReceptionEvent) => void) | null = null;
 let paywallHandler: ((id: string) => void) | null = null;
 let availability: PaywallAvailability | null = null;
 let generation = 0;
-export function bridgeFailure(): void {
-  console.warn('[Reception] Native bridge call failed.');
-}
 export const callbacks = {
   get onEvent() {
     return eventHandler;

@@ -7,6 +7,7 @@ import type {
 
 export const initial: Snapshot = {
   revision: 1,
+  settingRevisions: {},
   isConfigured: false,
   unreadCount: 0,
   isChatOpen: false,
