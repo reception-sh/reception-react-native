@@ -46,6 +46,18 @@ yet; that stack was verified with Expo’s manual installation. Set the app’s 
 to iOS 17. For Expo 57 use `internal import Expo` in AppDelegate, matching its generated
 module provider. Reception itself needs no additional Podfile changes.
 
+Reload check (2026-10-13, Expo 57.0.28 / RN 0.86.3 / React 19.2.3): a fresh
+app with native animation and no Reception completed 30 `reloadAppAsync()` button
+reloads; the same app with Reception completed 30 after a live chat. The example
+also completed four reloads with pending availability callbacks, then restored its
+filter. The previous intermittent hang did not reproduce in either case. Its saved
+sample shows main-thread `RCTHost` startup waiting in `RCTTurboModuleManager`, while
+`RCTNativeAnimatedTurboModule.invalidate` waits for a main-queue module notification.
+That suggests an upstream dependency cycle but the control does not prove its cause.
+Keep the reload button; capture both waiting threads if it recurs, before changing
+teardown or applying a workaround. Local evidence: `verification/reload-sample.txt`
+and `verification/review2/` (gitignored screenshots and command report).
+
 `configureForTesting` exists only in native Debug builds, accepts loopback URLs,
 and is deliberately absent from the package's TypeScript API. Only the example
 accesses it via `requireNativeModule`. Release builds must not contain it.
