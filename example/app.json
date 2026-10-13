@@ -4,6 +4,7 @@
     "slug": "reception-example",
     "scheme": "reception-example",
     "version": "1.0.0",
+    "userInterfaceStyle": "automatic",
     "ios": {
       "bundleIdentifier": "sh.reception.reactnative.example",
       "supportsTablet": false,

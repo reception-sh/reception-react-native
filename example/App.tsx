@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Button, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { requireNativeModule } from 'expo';
+import {
+  Button,
+  PlatformColor,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import { requireNativeModule, reloadAppAsync } from 'expo';
 import * as Notifications from 'expo-notifications';
 import {
   Reception,
@@ -85,7 +92,14 @@ export default function App() {
     } else {
       await Reception.configure({ appId });
     }
-    Reception.appearance = { accentColor: '#8A2BE2', showsCloseButton: true };
+    Reception.appearance = {
+      accentColor: { light: '#8A2BE2', dark: '#C89FFF' },
+      chatBackground: { light: '#F5F1FA', dark: '#191024' },
+      incomingBackground: { light: '#FFFFFF', dark: '#332641' },
+      incomingForeground: { light: '#23172E', dark: '#F8F1FF' },
+      onAccentColor: { light: '#FFFFFF', dark: '#22112F' },
+      showsCloseButton: true,
+    };
     Reception.usesRemoteAppearance = false;
     Reception.paywalls = [
       { id: 'plans', title: 'Plans' },
@@ -110,15 +124,15 @@ export default function App() {
     );
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Reception verification</Text>
-      <Text testID="state">
+    <ScrollView style={styles.page} contentContainerStyle={styles.container}>
+      <Text style={[styles.text, styles.title]}>Reception verification</Text>
+      <Text style={styles.text} testID="state">
         Unread: {unread} · Chat open: {String(open)}
       </Text>
-      <Text>
+      <Text style={styles.text}>
         {status} · SDK {Reception.version}
       </Text>
-      <Text>Available: {available}</Text>
+      <Text style={styles.text}>Available: {available}</Text>
       <Button
         title="Calls before configure"
         onPress={() =>
@@ -213,12 +227,20 @@ export default function App() {
           }, 'Notification permission requested')
         }
       />
-      <Text style={styles.events}>{events.join('\n')}</Text>
+      <Button
+        title="Reload JavaScript"
+        onPress={() => {
+          void reloadAppAsync().catch(() => setStatus('Reload failed'));
+        }}
+      />
+      <Text style={[styles.text, styles.events]}>{events.join('\n')}</Text>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  page: { backgroundColor: PlatformColor('systemBackgroundColor') },
+  text: { color: PlatformColor('labelColor') },
   container: { padding: 24, paddingTop: 70, paddingBottom: 40, gap: 6 },
   title: { fontSize: 23, fontWeight: '600', marginBottom: 8 },
   events: { fontSize: 13, marginTop: 12 },
