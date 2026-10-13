@@ -1,0 +1,9 @@
+node_modules/
+build/
+.expo/
+.DS_Store
+*.tgz
+verification/
+example/ios/
+example/android/
+example/.env.local

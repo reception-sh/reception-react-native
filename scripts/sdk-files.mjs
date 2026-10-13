@@ -1,0 +1,14 @@
+import { createHash } from 'node:crypto';
+import { readdir, readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+
+export async function hashes(directory, prefix = '') {
+  const result = {};
+  for (const entry of (await readdir(join(directory, prefix), { withFileTypes: true })).sort((a, b) => a.name.localeCompare(b.name))) {
+    const path = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.isDirectory()) Object.assign(result, await hashes(directory, path));
+    else if (entry.isFile()) result[path] = createHash('sha256').update(await readFile(join(directory, path))).digest('hex');
+    else throw new Error(`Unexpected SDK entry: ${path}`);
+  }
+  return result;
+}

@@ -1,0 +1,12 @@
+#!/usr/bin/env node
+import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { hashes } from './sdk-files.mjs';
+
+const vendor = fileURLToPath(new URL('../vendor/', import.meta.url));
+const pinned = JSON.parse(await readFile(`${vendor}/ios-sdk.json`, 'utf8'));
+const actual = await hashes(`${vendor}/reception-ios`);
+const paths = new Set([...Object.keys(actual), ...Object.keys(pinned.files)]);
+const changed = [...paths].filter((path) => actual[path] !== pinned.files[path]);
+if (changed.length) throw new Error(`Vendored SDK drift: ${changed.join(', ')}. Run scripts/sync-ios-sdk; never edit vendor files.`);
+console.log(`Reception ${pinned.version}: ${paths.size} pinned files match.`);
