@@ -2,7 +2,7 @@
   "sdkVersion": "1.1.1",
   "releaseTag": null,
   "basedOnTag": "1.1.1",
-  "commit": "988ea978b1603f0d28fd3a2ab9f6edb2e7d4a325",
+  "commit": "c46b5abd6c124201816551403fb6c7387ff06e70",
   "files": {
     "LICENSE": "1c287eec2cb254623843cc5f2506683d333c5ab6199f3bb463f0b7d58ac923de",
     "Reception.podspec": "3420dd767558a988ac217f13d2b195d5449b64a09e8c31860667f10eeff3ba9d",
@@ -57,6 +57,7 @@
     "Sources/Reception/ReceptionError.swift": "5cd62a0cb00e73085cac1c9c99e29877fde28425bce5633530bee0dad5e104d1",
     "Sources/Reception/ReceptionIdentity.swift": "96f91160e91b8006d5a79a93bb2e350477ecc3e4650243392d34b0ef2f78699f",
     "Sources/Reception/ReceptionPaywall.swift": "8d38e4236b818e7b7d577a99841f05dea24c4ddea6cff7ebf4cbf24d5752c6c9",
+    "Sources/Reception/ReceptionPush.swift": "2d94b26dd9d4214a7f947817fd32a1464729e30510355e9d65e28993ee717b08",
     "Sources/Reception/ReceptionResources.swift": "f66ec98e01fb026613de5b145c367809d516383f5fa5c42dd031b9ec35340755",
     "Sources/Reception/Resources/Localizable.xcstrings": "cd407e6f7d5dfb2e7c5e2c0c58aa4ac0072ba930bd4d4eb5431ab762174887ca",
     "Sources/Reception/Resources/PrivacyInfo.xcprivacy": "6366851c02c3739330aefe6757452b94a30dbb8828e0cc96580295ac28cbd373",
