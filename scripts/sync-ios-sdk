@@ -4,7 +4,7 @@ import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { hashes } from './sdk-files.mjs';
+import { hashes, versionSource } from './sdk-files.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const repository = resolve(root, '../reception-ios');
@@ -25,6 +25,8 @@ try {
   const version = (await readFile(resolve(scratch, 'Sources/Reception/Version.swift'), 'utf8')).match(/static let current = "([^"]+)"/)?.[1];
   if (!version) throw new Error('SDK version missing.');
   await writeFile(resolve(root, 'vendor/ios-sdk.json'), `${JSON.stringify({ version, commit, files: await hashes(destination) }, null, 2)}\n`);
+  await mkdir(resolve(root, 'src'), { recursive: true });
+  await writeFile(resolve(root, 'src/sdkVersion.ts'), versionSource(version));
   console.log(`Pinned Reception ${version} at ${commit}`);
 } finally {
   await rm(scratch, { recursive: true, force: true });

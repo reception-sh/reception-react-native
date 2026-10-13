@@ -1,0 +1,13 @@
+#!/usr/bin/env node
+import { execFileSync } from 'node:child_process';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { fileURLToPath } from 'node:url';
+
+const root = fileURLToPath(new URL('..', import.meta.url));
+const scratch = await mkdtemp(`${tmpdir()}/reception-native-tests-`);
+try {
+  const binary = `${scratch}/paywall-tests`;
+  execFileSync('swiftc', ['-swift-version', '5', '-strict-concurrency=complete', '-warnings-as-errors', '-parse-as-library', 'ios/PaywallRequests.swift', 'tests/PaywallRequestsTests.swift', '-o', binary], { cwd: root, stdio: 'inherit' });
+  execFileSync(binary, { stdio: 'inherit', timeout: 15000 });
+} finally { await rm(scratch, { recursive: true, force: true }); }

@@ -1,0 +1,8 @@
+{
+  "platforms": ["ios"],
+  "apple": {
+    "modules": ["ReceptionModule"],
+    "podspecPath": ["ios/ReceptionReactNative.podspec", "vendor/reception-ios/Reception.podspec"],
+    "swiftModuleName": ["ReceptionReactNative"]
+  }
+}

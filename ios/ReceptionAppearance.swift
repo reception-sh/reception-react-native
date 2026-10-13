@@ -1,0 +1,94 @@
+import SwiftUI
+import Reception
+import os
+
+@MainActor
+internal enum ReceptionAppearance {
+    private static let logger = Logger(subsystem: "com.reception.react-native", category: "Appearance")
+
+    static func apply(_ json: String) {
+        guard let data = json.data(using: .utf8),
+              let values = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] else { return }
+        var style = Reception.Appearance()
+        var accepted = values
+        func color(_ key: String) -> Color? {
+            guard let text = values[key] as? String else { return nil }
+            return hexColor(text)
+        }
+        style.accentColor = color("accentColor") ?? .accentColor
+        style.onAccentColor = color("onAccentColor")
+        style.chatBackground = color("chatBackground")
+        style.incomingBackground = color("incomingBackground")
+        style.incomingForeground = color("incomingForeground")
+        style.welcomeIconColor = color("welcomeIconColor")
+        if let value = values["title"] as? String { style.title = value }
+        if let value = values["welcomeTitle"] as? String { style.welcomeTitle = value }
+        if let value = values["welcomeText"] as? String { style.welcomeText = value }
+        if let value = values["showsCloseButton"] as? Bool { style.showsCloseButton = value }
+        if let value = values["fadesOlderMessages"] as? Bool { style.fadesOlderMessages = value }
+        if let value = values["hidesTitle"] as? Bool { style.hidesTitle = value }
+        if let value = values["hidesWelcomeTitle"] as? Bool { style.hidesWelcomeTitle = value }
+        if let value = values["hidesWelcomeText"] as? Bool { style.hidesWelcomeText = value }
+        if let value = values["closeIcon"] as? String, let icon = Reception.CloseIcon(rawValue: value) { style.closeIcon = icon }
+        switch values["preferredColorScheme"] as? String {
+        case "light": style.preferredColorScheme = .light
+        case "dark": style.preferredColorScheme = .dark
+        default: break
+        }
+        switch values["fontDesign"] as? String {
+        case "default": style.fontDesign = .default
+        case "rounded": style.fontDesign = .rounded
+        case "serif": style.fontDesign = .serif
+        case "monospaced": style.fontDesign = .monospaced
+        default: break
+        }
+        if let value = values["fontFamily"] as? String {
+            if UIFont(name: value, size: 17) != nil { style.fontFamily = value }
+            else {
+                logger.error("Unregistered font ignored")
+                style.fontFamily = Reception.shared.appearance.fontFamily
+                accepted["fontFamily"] = ReceptionBridge.appearanceValues["fontFamily"]
+            }
+        }
+        if let value = values["welcomeIconSize"] as? Double, value.isFinite, (16...160).contains(value) {
+            style.welcomeIconSize = value
+        }
+        if let value = values["welcomeIconCornerRadius"] as? Double, value.isFinite, (0...80).contains(value) {
+            style.welcomeIconCornerRadius = value
+        }
+        if let value = values["welcomeIconOffset"] as? [String: Double], let x = value["x"], let y = value["y"], x.isFinite, y.isFinite {
+            style.welcomeIconOffset = CGSize(width: x, height: y)
+        }
+        if let name = values["closeImage"] as? String {
+            if let image = UIImage(named: name) { style.closeImage = Image(uiImage: image) }
+            else {
+                logger.error("Missing close image ignored")
+                style.closeImage = Reception.shared.appearance.closeImage
+                accepted["closeImage"] = ReceptionBridge.appearanceValues["closeImage"]
+            }
+        }
+        if let icon = values["welcomeIcon"] as? [String: Any] {
+            if icon["hidden"] as? Bool == true { style.welcomeIcon = .hidden }
+            else if let symbol = icon["symbol"] as? String, UIImage(systemName: symbol) != nil {
+                style.welcomeIcon = .symbol(symbol)
+            } else if let name = icon["image"] as? String, let image = UIImage(named: name) {
+                style.welcomeIcon = .image(Image(uiImage: image))
+            } else {
+                logger.error("Missing welcome icon ignored")
+                style.welcomeIcon = Reception.shared.appearance.welcomeIcon
+                accepted["welcomeIcon"] = ReceptionBridge.appearanceValues["welcomeIcon"]
+            }
+        }
+        ReceptionBridge.appearanceValues = accepted
+        Reception.shared.appearance = style
+    }
+
+    private static func hexColor(_ text: String) -> Color? {
+        guard text.range(of: "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$", options: .regularExpression) != nil,
+              let value = UInt32(text.dropFirst(), radix: 16) else { return nil }
+        let rgba = text.count == 7 ? (value << 8) | 255 : value
+        return Color(.sRGB, red: Double((rgba >> 24) & 255) / 255,
+                     green: Double((rgba >> 16) & 255) / 255, blue: Double((rgba >> 8) & 255) / 255,
+                     opacity: Double(rgba & 255) / 255)
+    }
+}

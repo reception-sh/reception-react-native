@@ -1,0 +1,51 @@
+{
+  "name": "react-native-reception",
+  "version": "0.1.0",
+  "description": "Native Reception support chat for React Native and Expo on iOS.",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "react-native": "src/index.ts",
+  "source": "src/index.ts",
+  "files": [
+    "build",
+    "src",
+    "ios",
+    "vendor",
+    "expo-module.config.json",
+    "app.plugin.js",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "license": "MIT",
+  "homepage": "https://reception.sh",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "jest --runInBand",
+    "sync:ios": "node scripts/sync-ios-sdk",
+    "check:ios": "node scripts/check-ios-sdk",
+    "prepack": "npm run check:ios && npm run build",
+    "test:native": "node scripts/test-native"
+  },
+  "peerDependencies": {
+    "expo": ">=55",
+    "react": ">=19",
+    "react-native": ">=0.83"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/react": "~19.2.2",
+    "@types/react-test-renderer": "^19.1.0",
+    "eslint": "^9.39.5",
+    "expo": "~57.0.28",
+    "jest": "^30.5.2",
+    "jest-util": "^30.5.1",
+    "react": "19.2.3",
+    "react-native": "0.86.3",
+    "react-test-renderer": "19.2.3",
+    "ts-jest": "^29.4.0",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.0.0"
+  }
+}

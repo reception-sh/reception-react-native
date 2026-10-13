@@ -1,0 +1,55 @@
+import { Platform } from 'react-native';
+import { requireOptionalNativeModule } from 'expo';
+import type { Appearance, LogLevel, ReceptionPaywall, ReceptionState, Subscription } from './types';
+
+export interface Snapshot extends ReceptionState {
+  revision: number;
+  appearance: Appearance;
+  updatesAppBadge: boolean;
+  usesRemoteAppearance: boolean;
+  languageOverride: string | null;
+  logLevel: LogLevel;
+  paywalls: readonly ReceptionPaywall[];
+}
+export type NativeEvent = { type: string; error?: { code: string; status: number } };
+export interface NativeEvents {
+  onState: Snapshot;
+  onEvent: NativeEvent;
+  onPaywall: { id: string };
+  onAvailability: { requestId: string; id: string; generation: number };
+}
+export interface NativeReception {
+  readonly version: string;
+  connect(): Promise<Snapshot>;
+  configure(appId: string): Promise<Snapshot>;
+  identify(userId: string | null, name: string | null, email: string | null): Promise<void>;
+  identifyToken(token: string): Promise<void>;
+  setMetadata(metadata: Record<string, string>): Promise<void>;
+  logout(): Promise<Snapshot>;
+  deleteData(): Promise<{ error?: { code: string; status: number }; state: Snapshot }>;
+  openChat(): Promise<void>;
+  closeChat(): Promise<void>;
+  setPushToken(token: string, environment: string): Promise<void>;
+  handlePushNotification(conversationId: string, openChat: boolean): Promise<boolean>;
+  setAppearance(value: string): Promise<Snapshot>;
+  setUpdatesAppBadge(value: boolean): Promise<Snapshot>;
+  setUsesRemoteAppearance(value: boolean): Promise<Snapshot>;
+  setLanguageOverride(value: string | null): Promise<Snapshot>;
+  setLogLevel(value: LogLevel): Promise<Snapshot>;
+  setPaywalls(value: readonly ReceptionPaywall[]): Promise<Snapshot>;
+  setPaywallHandler(enabled: boolean): Promise<void>;
+  setPaywallAvailability(enabled: boolean, generation: number): Promise<Snapshot>;
+  resolvePaywallAvailability(requestId: string, allowed: boolean): Promise<void>;
+  refreshPaywalls(invalidate: boolean): Promise<void>;
+  addListener<K extends keyof NativeEvents>(event: K, listener: (value: NativeEvents[K]) => void): Subscription;
+}
+
+export const native = Platform.OS === 'ios' ? requireOptionalNativeModule<NativeReception>('ReceptionReactNative') : null;
+let warned = false;
+export function warnUnavailable(): void {
+  if (warned || native) return;
+  warned = true;
+  console.warn(Platform.OS === 'ios'
+    ? '[Reception] Native module unavailable. Install the package and rebuild your iOS app; Expo Go is unsupported.'
+    : '[Reception] Support chat is available on iOS only.');
+}

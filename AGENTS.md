@@ -24,7 +24,7 @@ Reception remains a separate module with its own resources and MIT license.
 
 ## Verification
 
-Run `npm run typecheck`, `npm run lint`, `npm test`, `npm run check:ios`, and
+Run `npm run typecheck`, `npm run lint`, `npm test`, `npm run test:native` (macOS), `npm run check:ios`, and
 `npm pack`. Test the tarball in a fresh Expo app with prebuild, pod install and an
 iOS simulator build without Podfile edits. Confirm Android autolinking excludes us.
 Focused tests cover validation, unsupported platforms, state, hooks, errors and
