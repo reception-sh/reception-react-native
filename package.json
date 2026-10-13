@@ -21,12 +21,14 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint .",
+    "lint": "eslint . && npm run format:check",
     "test": "jest --runInBand",
     "sync:ios": "node scripts/sync-ios-sdk",
     "check:ios": "node scripts/check-ios-sdk",
     "prepack": "npm run check:ios && npm run build",
-    "test:native": "node scripts/test-native"
+    "test:native": "node scripts/test-native",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "peerDependencies": {
     "expo": ">=55",
@@ -41,6 +43,7 @@
     "expo": "~57.0.28",
     "jest": "^30.5.2",
     "jest-util": "^30.5.1",
+    "prettier": "3.8.1",
     "react": "19.2.3",
     "react-native": "0.86.3",
     "react-test-renderer": "19.2.3",

@@ -4,9 +4,17 @@ import { warnUnavailable } from './NativeReception';
 
 export function useReceptionUnreadCount(): number {
   warnUnavailable();
-  return useSyncExternalStore(subscribe, () => getSnapshot().unreadCount, () => 0);
+  return useSyncExternalStore(
+    subscribe,
+    () => getSnapshot().unreadCount,
+    () => 0,
+  );
 }
 export function useReceptionChatOpen(): boolean {
   warnUnavailable();
-  return useSyncExternalStore(subscribe, () => getSnapshot().isChatOpen, () => false);
+  return useSyncExternalStore(
+    subscribe,
+    () => getSnapshot().isChatOpen,
+    () => false,
+  );
 }

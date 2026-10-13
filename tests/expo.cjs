@@ -1,1 +1,4 @@
-module.exports = { requireOptionalNativeModule: jest.fn(), requireNativeView: jest.fn(() => 'ReceptionNativeView') };
+module.exports = {
+  requireOptionalNativeModule: jest.fn(),
+  requireNativeView: jest.fn(() => 'ReceptionNativeView'),
+};

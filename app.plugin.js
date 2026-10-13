@@ -1,4 +1,7 @@
-const { withPodfileProperties, withXcodeProject } = require('expo/config-plugins');
+const {
+  withPodfileProperties,
+  withXcodeProject,
+} = require('expo/config-plugins');
 
 module.exports = function withReception(config) {
   config = withPodfileProperties(config, (config) => {
@@ -13,7 +16,12 @@ module.exports = function withReception(config) {
     for (const entry of Object.values(configurations)) {
       if (typeof entry !== 'object' || !entry.buildSettings) continue;
       const settings = entry.buildSettings;
-      if (settings.IPHONEOS_DEPLOYMENT_TARGET && Number.parseFloat(settings.IPHONEOS_DEPLOYMENT_TARGET.replaceAll('"', '')) < 17) {
+      if (
+        settings.IPHONEOS_DEPLOYMENT_TARGET &&
+        Number.parseFloat(
+          settings.IPHONEOS_DEPLOYMENT_TARGET.replaceAll('"', ''),
+        ) < 17
+      ) {
         settings.IPHONEOS_DEPLOYMENT_TARGET = '17.0';
       }
     }

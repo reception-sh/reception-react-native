@@ -7,8 +7,17 @@ const vendor = fileURLToPath(new URL('../vendor/', import.meta.url));
 const pinned = JSON.parse(await readFile(`${vendor}/ios-sdk.json`, 'utf8'));
 const actual = await hashes(`${vendor}/reception-ios`);
 const paths = new Set([...Object.keys(actual), ...Object.keys(pinned.files)]);
-const changed = [...paths].filter((path) => actual[path] !== pinned.files[path]);
-if (changed.length) throw new Error(`Vendored SDK drift: ${changed.join(', ')}. Run scripts/sync-ios-sdk; never edit vendor files.`);
-const versionFile = await readFile(new URL('../src/sdkVersion.ts', import.meta.url), 'utf8');
-if (versionFile !== versionSource(pinned.version)) throw new Error('JS SDK version drift. Run scripts/sync-ios-sdk.');
+const changed = [...paths].filter(
+  (path) => actual[path] !== pinned.files[path],
+);
+if (changed.length)
+  throw new Error(
+    `Vendored SDK drift: ${changed.join(', ')}. Run scripts/sync-ios-sdk; never edit vendor files.`,
+  );
+const versionFile = await readFile(
+  new URL('../src/sdkVersion.ts', import.meta.url),
+  'utf8',
+);
+if (versionFile !== versionSource(pinned.version))
+  throw new Error('JS SDK version drift. Run scripts/sync-ios-sdk.');
 console.log(`Reception ${pinned.version}: ${paths.size} pinned files match.`);

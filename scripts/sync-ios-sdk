@@ -9,22 +9,46 @@ import { hashes, versionSource } from './sdk-files.mjs';
 const root = fileURLToPath(new URL('..', import.meta.url));
 const repository = resolve(root, '../reception-ios');
 const revision = process.argv[2] ?? 'HEAD';
-const git = (...args) => execFileSync('git', ['-C', repository, ...args], { encoding: 'utf8' }).trim();
-if (!process.argv[2] && git('status', '--porcelain', '--', 'Sources/Reception', 'Reception.podspec', 'LICENSE')) {
+const git = (...args) =>
+  execFileSync('git', ['-C', repository, ...args], { encoding: 'utf8' }).trim();
+if (
+  !process.argv[2] &&
+  git(
+    'status',
+    '--porcelain',
+    '--',
+    'Sources/Reception',
+    'Reception.podspec',
+    'LICENSE',
+  )
+) {
   throw new Error('Commit SDK changes before syncing.');
 }
 const commit = git('rev-parse', '--verify', `${revision}^{commit}`);
 const scratch = await mkdtemp(`${tmpdir()}/reception-sdk-`);
 try {
-  const archive = execFileSync('git', ['-C', repository, 'archive', commit, 'Sources/Reception', 'Reception.podspec', 'LICENSE']);
+  const archive = execFileSync('git', [
+    '-C',
+    repository,
+    'archive',
+    commit,
+    'Sources/Reception',
+    'Reception.podspec',
+    'LICENSE',
+  ]);
   execFileSync('tar', ['-x', '-C', scratch], { input: archive });
   const destination = resolve(root, 'vendor/reception-ios');
   await rm(destination, { recursive: true, force: true });
   await mkdir(resolve(root, 'vendor'), { recursive: true });
   await cp(scratch, destination, { recursive: true });
-  const version = (await readFile(resolve(scratch, 'Sources/Reception/Version.swift'), 'utf8')).match(/static let current = "([^"]+)"/)?.[1];
+  const version = (
+    await readFile(resolve(scratch, 'Sources/Reception/Version.swift'), 'utf8')
+  ).match(/static let current = "([^"]+)"/)?.[1];
   if (!version) throw new Error('SDK version missing.');
-  await writeFile(resolve(root, 'vendor/ios-sdk.json'), `${JSON.stringify({ version, commit, files: await hashes(destination) }, null, 2)}\n`);
+  await writeFile(
+    resolve(root, 'vendor/ios-sdk.json'),
+    `${JSON.stringify({ version, commit, files: await hashes(destination) }, null, 2)}\n`,
+  );
   await mkdir(resolve(root, 'src'), { recursive: true });
   await writeFile(resolve(root, 'src/sdkVersion.ts'), versionSource(version));
   console.log(`Pinned Reception ${version} at ${commit}`);
