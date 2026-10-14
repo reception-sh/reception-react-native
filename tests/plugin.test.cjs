@@ -1,4 +1,10 @@
-const { withBaseMod, evalModsAsync } = require('expo/config-plugins');
+const {
+  IOSConfig,
+  withBaseMod,
+  evalModsAsync,
+} = require('expo/config-plugins');
+jest.mock('node:fs/promises', () => ({ readFile: jest.fn() }));
+const { readFile } = require('node:fs/promises');
 const { withIosDeploymentTarget } = require(
   require('node:path').join(
     require('node:path').dirname(require.resolve('expo-build-properties')),
@@ -7,11 +13,12 @@ const { withIosDeploymentTarget } = require(
 );
 const withReception = require('../app.plugin');
 
-async function deploymentTarget(order, target) {
-  const buildProperties = [
-    'expo-build-properties',
-    { ios: { deploymentTarget: target } },
-  ];
+async function deploymentTarget(
+  order,
+  target,
+  identity = 'expo-build-properties',
+) {
+  const buildProperties = [identity, { ios: { deploymentTarget: target } }];
   let config = {
     name: 'Test',
     slug: 'test',
@@ -33,6 +40,7 @@ async function deploymentTarget(order, target) {
     },
   };
   const files = {
+    finalized: {},
     podfileProperties: {},
     xcodeproj: {
       pbxXCBuildConfigurationSection: () => configurations,
@@ -47,6 +55,12 @@ async function deploymentTarget(order, target) {
       }),
     },
   };
+  readFile.mockImplementation(async () =>
+    JSON.stringify(files.podfileProperties),
+  );
+  jest
+    .spyOn(IOSConfig.XcodeUtils, 'getPbxproj')
+    .mockReturnValue(files.xcodeproj);
   for (const [mod, contents] of Object.entries(files)) {
     config = withBaseMod(config, {
       platform: 'ios',
@@ -71,6 +85,32 @@ async function deploymentTarget(order, target) {
     app: configurations.debug.buildSettings.IPHONEOS_DEPLOYMENT_TARGET,
   };
 }
+
+afterEach(() => jest.restoreAllMocks());
+
+test.each([
+  ['reception', 'properties'],
+  ['properties', 'reception'],
+])(
+  'recognizes resolved build-properties paths: %s, %s',
+  async (first, second) => {
+    const path = require.resolve('expo-build-properties/app.plugin.js');
+    await expect(
+      deploymentTarget([first, second], '16.4', path),
+    ).rejects.toThrow('Reception requires iOS 17');
+    expect(await deploymentTarget([first, second], '18.0', path)).toEqual({
+      pods: '18.0',
+      app: '18.0',
+    });
+  },
+);
+
+test('validates generated targets even when an unrecognized plugin overwrites them', async () => {
+  await expect(
+    deploymentTarget(['properties', 'reception'], '16.4', './custom-plugin'),
+  ).rejects.toThrow('Reception requires iOS 17');
+  expect(readFile).toHaveBeenCalled();
+});
 
 test.each([
   ['reception', 'properties'],
