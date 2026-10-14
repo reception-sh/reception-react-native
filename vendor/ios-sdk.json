@@ -2,7 +2,7 @@
   "sdkVersion": "1.1.1",
   "releaseTag": null,
   "basedOnTag": "1.1.1",
-  "commit": "c46b5abd6c124201816551403fb6c7387ff06e70",
+  "commit": "8e8071537913ceafbf3286e072d7286887f20c28",
   "files": {
     "LICENSE": "1c287eec2cb254623843cc5f2506683d333c5ab6199f3bb463f0b7d58ac923de",
     "Reception.podspec": "3420dd767558a988ac217f13d2b195d5449b64a09e8c31860667f10eeff3ba9d",
@@ -85,7 +85,7 @@
     "Sources/Reception/Views/ChatHistory.swift": "61e294e100965fc1f656faac9bfaa050f41ca4ffb098a3cb14b44ffd08fa8e04",
     "Sources/Reception/Views/ChatPresenter.swift": "b2632ea66f270e17d117ba40aad73a1716d56b7bc3ae5c8ca10668a993786e2b",
     "Sources/Reception/Views/ChatTitle.swift": "ffe566c3b10ef686ff56c6632a8ace378cb8e8c13866ad68380c87cc29d33afe",
-    "Sources/Reception/Views/Composer.swift": "40204545331b4e7fc93f7b0ff58d502313bffd6c79531036664e79afda3c0e86",
+    "Sources/Reception/Views/Composer.swift": "7df4cd8cb8a19697553820e164a7f8da3f8af08793de565f902cfc05492fbd29",
     "Sources/Reception/Views/ComposerDimensions.swift": "c1559e02e098db273fa28d07e9b3d78818a0976202bc9a1fbb2f5ad018ba158a",
     "Sources/Reception/Views/ComposerSurface.swift": "20dd0309539dd465d888f984863b5c0fb4c0e9918956166b6526023206d914fb",
     "Sources/Reception/Views/ConnectionBanner.swift": "b65450fa7e41b7af559b6c56cce9af79f1a3b73f4b6e9b25b66772c9a7a4cc01",
