@@ -23,12 +23,12 @@ The script uses local Git objects only. `scripts/check-ios-sdk` verifies every
 vendored byte and detects added or removed files. Keep both podspecs autolinked;
 Reception remains a separate module with its own resources and MIT license.
 
-The current vendor pin is unreleased work on top of iOS 1.1.1, not the 1.1.1 tag.
+The vendor pin must be a released reception-ios tag (currently 1.2.0).
 `vendor/ios-sdk.json` records the SDK-reported version, exact commit, base tag and
-release tag (null for unreleased sources). Release order: release and tag
-reception-ios 1.1.2 first, run `scripts/sync-ios-sdk 1.1.2`, verify the tarball, then
-release react-native-reception. Never publish an npm release from an unreleased
-SDK pin. These steps require an explicit release request.
+release tag. Release order for SDK changes: release and tag reception-ios first,
+run `scripts/sync-ios-sdk <tag>`, verify the tarball, then release
+react-native-reception. Never publish an npm release from an unreleased SDK pin.
+These steps require an explicit release request.
 
 ## Verification
 
