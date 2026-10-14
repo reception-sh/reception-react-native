@@ -63,6 +63,17 @@ and is deliberately absent from the package's TypeScript API. Only the example
 accesses it via `requireNativeModule`. Release builds must not contain it.
 Paywall checks fail closed after five seconds, on cancellation, and on JS teardown.
 
+The optional Expo push entry owns routing; its presentation function never routes.
+Keep notification deduplication in native process state so JS reloads cannot replay
+Expo's retained tap. Never clear Expo's shared last-response storage: another router
+may own a newer notification. Registration never requests permission.
+
+Superwall purchase verification uses a copied StoreKit catalog in a scratch app's
+Xcode Run scheme. Resolve the catalog path in the scheme editor. A different bundle
+ID enables Superwall's simulated test mode; set its `testModeBehavior` to `never` only
+in the scratch fixture to exercise Apple's StoreKit test purchase instead. Load keys
+from local environment/configuration; never commit or log them.
+
 ## Git
 
 Small, focused commits. Never push, publish, change remotes, commit .env files, or
