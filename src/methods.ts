@@ -1,17 +1,23 @@
-import { native, warnUnavailable } from './NativeReception';
+import {
+  native,
+  warnUnavailable,
+  type NativeReception,
+} from './NativeReception';
 import { ReceptionError } from './ReceptionError';
 import { updateSnapshot } from './state';
 import { pushSessionReset } from './pushSession';
 import { isRecord, warnInvalid } from './validation';
 import type { Identity, PushEnvironment } from './types';
 
-async function call<T>(action: () => Promise<T>): Promise<T | undefined> {
+async function call<T>(
+  action: (module: NativeReception) => Promise<T>,
+): Promise<T | undefined> {
   if (!native) {
     warnUnavailable();
     return;
   }
   try {
-    return await action();
+    return await action(native);
   } catch (error) {
     throw ReceptionError.from(error);
   }
@@ -19,16 +25,16 @@ async function call<T>(action: () => Promise<T>): Promise<T | undefined> {
 
 export const methods = {
   async configure(options: { appId: string }): Promise<void> {
-    await call(async () => {
+    await call(async (module) => {
       if (!isRecord(options) || typeof options.appId !== 'string') {
         warnInvalid('appId');
         return;
       }
-      if (native) updateSnapshot(await native.configure(options.appId));
+      updateSnapshot(await module.configure(options.appId));
     });
   },
   async identify(identity: Identity): Promise<void> {
-    await call(async () => {
+    await call(async (module) => {
       if (!isRecord(identity)) {
         warnInvalid('identity');
         return;
@@ -38,7 +44,7 @@ export const methods = {
           warnInvalid('identity token');
           return;
         }
-        await native?.identifyToken(identity.token);
+        await module.identifyToken(identity.token);
       } else {
         const values = [
           identity.userId,
@@ -51,7 +57,7 @@ export const methods = {
           warnInvalid('identity');
           return;
         }
-        await native?.identify(
+        await module.identify(
           identity.userId,
           identity.name ?? null,
           identity.email ?? null,
@@ -60,7 +66,7 @@ export const methods = {
     });
   },
   async setMetadata(value: Record<string, string>): Promise<void> {
-    await call(async () => {
+    await call(async (module) => {
       if (
         !isRecord(value) ||
         !Object.values(value).every((entry) => typeof entry === 'string')
@@ -68,42 +74,34 @@ export const methods = {
         warnInvalid('metadata');
         return;
       }
-      await native?.setMetadata(value);
+      await module.setMetadata(value);
     });
   },
   async logout(): Promise<void> {
-    await call(async () => {
-      if (native) {
-        updateSnapshot(await native.logout());
-        pushSessionReset();
-      }
+    await call(async (module) => {
+      updateSnapshot(await module.logout());
+      pushSessionReset();
     });
   },
   async deleteData(): Promise<void> {
-    await call(async () => {
-      const result = await native?.deleteData();
-      if (result) {
-        updateSnapshot(result.state);
-        if (result.error) throw ReceptionError.from(result.error);
-        pushSessionReset();
-      }
+    await call(async (module) => {
+      const result = await module.deleteData();
+      updateSnapshot(result.state);
+      if (result.error) throw ReceptionError.from(result.error);
+      pushSessionReset();
     });
   },
   async openChat(): Promise<void> {
-    await call(async () => {
-      await native?.openChat();
-    });
+    await call((module) => module.openChat());
   },
   async closeChat(): Promise<void> {
-    await call(async () => {
-      await native?.closeChat();
-    });
+    await call((module) => module.closeChat());
   },
   async setPushToken(
     token: string,
     environment: PushEnvironment = 'automatic',
   ): Promise<void> {
-    await call(async () => {
+    await call(async (module) => {
       if (
         typeof token !== 'string' ||
         !/^(?:[\da-f]{2})+$/i.test(token) ||
@@ -113,7 +111,7 @@ export const methods = {
         warnInvalid('APNs token or environment');
         return;
       }
-      await native?.setPushToken(token.toLowerCase(), environment);
+      await module.setPushToken(token.toLowerCase(), environment);
     });
   },
   async handlePushNotification(
@@ -121,7 +119,7 @@ export const methods = {
     options: { openChat?: boolean } = {},
   ): Promise<boolean> {
     return (
-      (await call(async () => {
+      (await call(async (module) => {
         if (
           !isRecord(payload) ||
           !isRecord(options) ||
@@ -139,17 +137,15 @@ export const methods = {
           !reception.conversationId
         )
           return false;
-        return (
-          (await native?.handlePushNotification(
-            reception.conversationId,
-            options.openChat ?? true,
-          )) ?? false
+        return module.handlePushNotification(
+          reception.conversationId,
+          options.openChat ?? true,
         );
       })) ?? false
     );
   },
   async refreshPaywalls(options: { invalidate?: boolean } = {}): Promise<void> {
-    await call(async () => {
+    await call(async (module) => {
       if (
         !isRecord(options) ||
         (options.invalidate !== undefined &&
@@ -158,7 +154,7 @@ export const methods = {
         warnInvalid('invalidate');
         return;
       }
-      await native?.refreshPaywalls(options.invalidate ?? false);
+      await module.refreshPaywalls(options.invalidate ?? false);
     });
   },
 };
