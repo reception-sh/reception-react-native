@@ -57,7 +57,10 @@ useEffect(() => startReceptionPush(), []);
 ```
 
 Import `useEffect` from React. The helper registers when already authorized and routes
-receipts and taps, including cold starts. It never requests permission. Compose
+receipts and taps, including cold starts. It never requests permission.
+After your app’s permission request, call `await refreshReceptionPush()` from the
+same optional entry to register immediately, including for provisional permission.
+Compose
 `receptionNotificationBehavior(notification)` into your existing notification handler;
 see the [push setup](https://reception.sh/docs/react-native#push). The main package
 import does not load `expo-notifications`.

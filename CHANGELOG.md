@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Validate final iOS deployment targets, including resolved expo-build-properties plugin paths.
+- Add `refreshReceptionPush()` to register after the app’s existing permission flow.
+
 - Add optional Expo notification registration, routing and composable presentation, with cleanup and duplicate-tap protection across JavaScript reloads.
 - Report conflicting expo-build-properties deployment targets and document explicit prebuild for existing generated projects.
 - Keep embedded chat content and the iOS 26 composer inside their view bounds.

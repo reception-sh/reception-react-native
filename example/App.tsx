@@ -18,6 +18,7 @@ import {
 
 import {
   startReceptionPush,
+  refreshReceptionPush,
   receptionNotificationBehavior,
 } from 'react-native-reception/expo-notifications';
 
@@ -217,7 +218,10 @@ export default function App() {
         title="Enable test notifications"
         onPress={() => {
           void Notifications.requestPermissionsAsync()
-            .then(({ status }) => setStatus(`Notifications: ${status}`))
+            .then(async ({ status }) => {
+              await refreshReceptionPush();
+              setStatus(`Notifications: ${status}`);
+            })
             .catch(() => setStatus('Notification permission failed'));
         }}
       />

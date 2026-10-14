@@ -81,6 +81,44 @@ test.each([0, 1, 3, 4])(
   },
 );
 
+test('refresh registers newly granted provisional permission without a foreground transition', async () => {
+  push.api.getPermissionsAsync.mockResolvedValue({
+    granted: false,
+    ios: { status: 0 },
+  });
+  await helper.refreshReceptionPush();
+  expect(push.api.getPermissionsAsync).not.toHaveBeenCalled();
+  const stop = helper.startReceptionPush();
+  await flush();
+  expect(mock.native.setPushToken).not.toHaveBeenCalled();
+  push.api.getPermissionsAsync.mockResolvedValue({
+    granted: false,
+    ios: { status: 3 },
+  });
+  await helper.refreshReceptionPush();
+  expect(mock.native.setPushToken).toHaveBeenCalledTimes(1);
+  expect(push.api.requestPermissionsAsync).not.toHaveBeenCalled();
+  stop();
+  await helper.refreshReceptionPush();
+  expect(mock.native.setPushToken).toHaveBeenCalledTimes(1);
+});
+
+test('refresh after permission failure resolves safely and can retry', async () => {
+  const stop = helper.startReceptionPush();
+  await flush();
+  push.api.getPermissionsAsync.mockRejectedValueOnce(
+    new Error('private permission error'),
+  );
+  await helper.refreshReceptionPush();
+  expect(mock.native.setPushToken).toHaveBeenCalledTimes(1);
+  await helper.refreshReceptionPush();
+  expect(mock.native.setPushToken).toHaveBeenCalledTimes(2);
+  expect(JSON.stringify(jest.mocked(console.warn).mock.calls)).not.toContain(
+    'private permission error',
+  );
+  stop();
+});
+
 test('cleanup cancels outstanding work and never clears a newer unrelated response', async () => {
   let finishResponse: ((value: NotificationResponse) => void) | undefined;
   let finishPermission:
@@ -165,6 +203,7 @@ test.each(['android', 'web'])(
   async (platform) => {
     await load(platform);
     helper.startReceptionPush()();
+    await helper.refreshReceptionPush();
     expect(helper.receptionNotificationBehavior(notification())).toBeNull();
     expect(push.api.getPermissionsAsync).not.toHaveBeenCalled();
     expect(push.received.add).not.toHaveBeenCalled();

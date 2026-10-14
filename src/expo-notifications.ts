@@ -34,6 +34,12 @@ export function receptionNotificationBehavior(
 
 let owners = 0;
 let stop: (() => void) | undefined;
+let refreshRegistration: (() => Promise<void>) | undefined;
+
+/** Call after your permission flow. Never prompts; no-op unless startReceptionPush is active. */
+export async function refreshReceptionPush(): Promise<void> {
+  await refreshRegistration?.();
+}
 
 /** Start after configuring Reception. Never requests permission; returns cleanup. iOS only. */
 export function startReceptionPush(): () => void {
@@ -76,8 +82,9 @@ function start(): () => void {
       await Reception.setPushToken(token.data);
     }
   };
+  refreshRegistration = () => register().catch(reportFailure);
   const refresh = () => {
-    void register().catch(reportFailure);
+    void refreshReceptionPush();
   };
   const route = (
     notification: Notifications.Notification,
@@ -120,6 +127,7 @@ function start(): () => void {
     .catch(reportFailure);
   return () => {
     active = false;
+    refreshRegistration = undefined;
     foreground.remove();
     token.remove();
     received.remove();
