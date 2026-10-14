@@ -7,5 +7,5 @@
 - Keep embedded chat content inside its React Native view bounds.
 - Add iOS support chat for React Native and Expo using a pinned, unreleased Swift SDK based on Reception 1.1.1.
 - Support light/dark color pairs and immediate setting getters with revision-based native reconciliation.
-- Require Expo SDK 54+ (verified 54–57), React Native 0.81+ and React 19.1+, with open upper ranges; verify fresh tarball installs and live chat on each SDK.
-- Verify automatic Expo Modules installation on bare React Native 0.83.10 with Expo 55.
+- Require Expo SDK 54+ (verified 54–57), React Native 0.81+ and React 19.1+, with open upper ranges.
+- Simplify the JS bridge and organize setup around install, configure and open chat.
