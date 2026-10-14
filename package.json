@@ -18,6 +18,22 @@
   ],
   "license": "MIT",
   "homepage": "https://reception.sh",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/reception-sh/reception-react-native.git"
+  },
+  "bugs": {
+    "url": "https://github.com/reception-sh/reception-react-native/issues"
+  },
+  "keywords": [
+    "react-native",
+    "expo",
+    "ios",
+    "support",
+    "chat",
+    "customer-support",
+    "in-app-chat"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
