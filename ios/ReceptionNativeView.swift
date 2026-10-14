@@ -9,6 +9,7 @@ internal final class ReceptionNativeView: ExpoView {
     super.didMoveToWindow()
     if window != nil, host == nil {
       guard let parent = nearestViewController() else { return }
+      clipsToBounds = true
       let controller = UIHostingController(rootView: ReceptionChatView())
       controller.view.backgroundColor = .clear
       parent.addChild(controller)
