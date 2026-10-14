@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.0.0 — 2026-10-14
 
 - Add the native Reception iOS support chat to React Native and Expo apps, bundling Reception iOS SDK 1.2.0.
 - Require Expo SDK 54+ (verified 54–57), React Native 0.81+ and React 19.1+, with open upper ranges.
