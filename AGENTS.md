@@ -23,7 +23,7 @@ The script uses local Git objects only. `scripts/check-ios-sdk` verifies every
 vendored byte and detects added or removed files. Keep both podspecs autolinked;
 Reception remains a separate module with its own resources and MIT license.
 
-The vendor pin must be a released reception-ios tag (currently 1.2.0).
+The vendor pin must be a released reception-ios tag (currently 1.3.0).
 `vendor/ios-sdk.json` records the SDK-reported version, exact commit, base tag and
 release tag. Release order for SDK changes: release and tag reception-ios first,
 run `scripts/sync-ios-sdk <tag>`, verify the tarball, then release
