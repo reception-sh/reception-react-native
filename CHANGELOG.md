@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.0 — 2026-10-16
+
+- Bundle Reception iOS SDK 1.3.0. Device registration and updates now report the app's `Reception.appearance` (colors, texts, font, welcome icon and visibility) so the dashboard's chat design editor starts from the design set in code. Images are reported only as present, never uploaded.
+
 ## 1.0.0 — 2026-10-14
 
 - Add the native Reception iOS support chat to React Native and Expo apps, bundling Reception iOS SDK 1.2.0.
