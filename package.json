@@ -1,6 +1,6 @@
 {
   "name": "react-native-reception",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Native Reception support chat for React Native and Expo on iOS.",
   "main": "build/index.js",
   "types": "build/index.d.ts",

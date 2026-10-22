@@ -1,8 +1,8 @@
 {
-  "sdkVersion": "1.3.0",
-  "releaseTag": null,
-  "basedOnTag": "1.3.0",
-  "commit": "d3d6402371561aa7a9690a8970e1245072250d09",
+  "sdkVersion": "1.4.0",
+  "releaseTag": "1.4.0",
+  "basedOnTag": "1.4.0",
+  "commit": "d6ac44ebb596aab85c4ba22660c383eba6af4b3c",
   "files": {
     "LICENSE": "1c287eec2cb254623843cc5f2506683d333c5ab6199f3bb463f0b7d58ac923de",
     "Reception.podspec": "3420dd767558a988ac217f13d2b195d5449b64a09e8c31860667f10eeff3ba9d",
@@ -64,7 +64,7 @@
     "Sources/Reception/Resources/PrivacyInfo.xcprivacy": "6366851c02c3739330aefe6757452b94a30dbb8828e0cc96580295ac28cbd373",
     "Sources/Reception/Theme.swift": "8566c17f0c88fa392c9d0fe774d3dd69a23ad88baa89c881a584b583b2d8cc10",
     "Sources/Reception/Theme+Fonts.swift": "c427f7457f0f0b09b2f36815c4e41f7c3413a48f72355e97d28f8b5a31270da8",
-    "Sources/Reception/Version.swift": "a4db6ca8f4afecc3578975d4e4c8ed021dd8596a69eb50fb01735b3a3dce3ecb",
+    "Sources/Reception/Version.swift": "5602d941e7cac5a4184dbd9cc5153e04b2c0bf62e5f39ac813f70a2078d974ee",
     "Sources/Reception/ViewModel/ChatConnection.swift": "064bad85a0a87e6f58b16a394cd56f623a09040898bf282e3ed4fc02a05ad547",
     "Sources/Reception/ViewModel/ChatCooldowns.swift": "15df1259f39f01554e0386ce198ce3f3e211de45b5e10c205405907c287ad7ae",
     "Sources/Reception/ViewModel/ChatDelivery.swift": "a8dadbf2ef90c9d3d99f2924bd30db1076f538f7bb82d6921702a37073ef9887",
