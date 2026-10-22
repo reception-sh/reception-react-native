@@ -1,8 +1,20 @@
 import type { ReceptionError } from './ReceptionError';
 
+/** A product a paywall sells, shown to your team in the dashboard. Periods are ISO 8601 durations like "P1M". */
+export interface ReceptionPaywallProduct {
+  readonly id: string;
+  readonly price?: string;
+  readonly period?: string;
+  readonly trial?: string;
+}
 export interface ReceptionPaywall {
   readonly id: string;
   readonly title: string;
+  /** Where the paywall is built: "revenuecat", "superwall", "adapty", "app" or another lowercase vendor name. */
+  readonly source?: string;
+  readonly products?: readonly ReceptionPaywallProduct[];
+  /** False lists an offering without a paywall for your team; it is never opened by a card. */
+  readonly presentable?: boolean;
 }
 export type PushEnvironment = 'automatic' | 'sandbox' | 'production';
 export type LogLevel = 'off' | 'error' | 'info' | 'debug';

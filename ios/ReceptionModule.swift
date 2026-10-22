@@ -143,14 +143,11 @@ public final class ReceptionModule: Module, @unchecked Sendable {
           } as Any)
       }
     }.runOnQueue(.main)
-    AsyncFunction("setPaywalls") { (value: [[String: String]], revision: Int, promise: Promise) in
+    AsyncFunction("setPaywalls") { (value: [[String: Any]], revision: Int, promise: Promise) in
       MainActor.assumeIsolated {
         promise.resolve(
           self.bridge.applySetting("paywalls", revision: revision) {
-            Reception.shared.paywalls = value.compactMap { entry in
-              guard let id = entry["id"], let title = entry["title"] else { return nil }
-              return ReceptionPaywall(id: id, title: title)
-            }
+            Reception.shared.paywalls = value.compactMap(PaywallValues.paywall)
           } as Any)
       }
     }.runOnQueue(.main)

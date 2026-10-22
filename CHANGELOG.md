@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- `paywalls` entries take an optional `source` (where the paywall is built), `products` (ID, localized price, ISO 8601 period and free trial) and `presentable` (false lists an offering without a paywall for your team). They reach the dashboard with Reception iOS SDK 1.4.0; existing `{ id, title }` entries are unchanged. The RevenueCat, Superwall and own-screen helpers report them.
+
 ## 1.1.0 — 2026-10-16
 
 - Bundle Reception iOS SDK 1.3.0. Device registration and updates now report the app's `Reception.appearance` (colors, texts, font, welcome icon and visibility) so the dashboard's chat design editor starts from the design set in code. Images are reported only as present, never uploaded.

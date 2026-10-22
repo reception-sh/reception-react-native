@@ -86,3 +86,24 @@ export function validateAppearance(
   }
   return result;
 }
+
+const optional = (value: unknown, type: 'string' | 'boolean') =>
+  value === undefined || typeof value === type;
+const isProduct = (value: unknown) =>
+  isRecord(value) &&
+  typeof value.id === 'string' &&
+  optional(value.price, 'string') &&
+  optional(value.period, 'string') &&
+  optional(value.trial, 'string');
+/** A paywall entry: id and title, plus optional details the Swift SDK validates further. */
+export function isPaywall(value: unknown): boolean {
+  return (
+    isRecord(value) &&
+    typeof value.id === 'string' &&
+    typeof value.title === 'string' &&
+    optional(value.source, 'string') &&
+    optional(value.presentable, 'boolean') &&
+    (value.products === undefined ||
+      (Array.isArray(value.products) && value.products.every(isProduct)))
+  );
+}

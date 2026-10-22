@@ -2,7 +2,7 @@ import { native, warnUnavailable } from './NativeReception';
 import { sdkVersion } from './sdkVersion';
 import { callbacks } from './callbacks';
 import { getSnapshot, listen, assignSetting } from './state';
-import { isRecord, validateAppearance, warnInvalid } from './validation';
+import { isPaywall, validateAppearance, warnInvalid } from './validation';
 import { methods } from './methods';
 import type {
   Appearance,
@@ -55,15 +55,7 @@ export const Reception = {
       warnUnavailable();
       return;
     }
-    if (
-      !Array.isArray(value) ||
-      !value.every(
-        (entry) =>
-          isRecord(entry) &&
-          typeof entry.id === 'string' &&
-          typeof entry.title === 'string',
-      )
-    ) {
+    if (!Array.isArray(value) || !value.every(isPaywall)) {
       warnInvalid('paywalls');
       return;
     }

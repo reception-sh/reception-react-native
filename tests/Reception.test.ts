@@ -179,3 +179,34 @@ test('paywall callbacks and registrations forward without closing chat', async (
   await Reception.refreshPaywalls({ invalidate: true });
   expect(mock.native.refreshPaywalls).toHaveBeenCalledWith(true);
 });
+
+test('paywall details pass through to the native module and invalid entries are ignored', async () => {
+  const detailed = [
+    {
+      id: 'plans',
+      title: 'Plans',
+      source: 'revenuecat',
+      products: [
+        { id: 'pro_yearly', price: '$59.99', period: 'P1Y', trial: 'P1W' },
+      ],
+    },
+    { id: 'legacy', title: 'Legacy', presentable: false },
+  ];
+  Reception.paywalls = detailed;
+  expect(mock.native.setPaywalls).toHaveBeenLastCalledWith(
+    detailed,
+    expect.any(Number),
+  );
+  expect(Reception.paywalls).toEqual(detailed);
+  const calls = mock.native.setPaywalls.mock.calls.length;
+  Reception.paywalls = [
+    { id: 'plans', title: 'Plans', products: 'many' as never },
+  ];
+  Reception.paywalls = [
+    { id: 'plans', title: 'Plans', presentable: 'no' as never },
+  ];
+  Reception.paywalls = [
+    { id: 'plans', title: 'Plans', products: [{ id: 1 }] as never },
+  ];
+  expect(mock.native.setPaywalls.mock.calls.length).toBe(calls);
+});

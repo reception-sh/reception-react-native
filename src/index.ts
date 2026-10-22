@@ -12,6 +12,7 @@ export type {
   PushEnvironment,
   ReceptionEvent,
   ReceptionPaywall,
+  ReceptionPaywallProduct,
   ReceptionState,
   Subscription,
   WelcomeIcon,
