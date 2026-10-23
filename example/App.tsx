@@ -151,6 +151,15 @@ export default function App() {
         onPress={() => void run(Reception.openChat, 'Open requested')}
       />
       <Button
+        title="Track paywall declined"
+        onPress={() =>
+          void run(
+            () => Reception.track('paywall_declined', { opensChat: true }),
+            'Event tracked',
+          )
+        }
+      />
+      <Button
         title="Open then close after 3s"
         onPress={() =>
           void run(async () => {

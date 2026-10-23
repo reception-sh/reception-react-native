@@ -43,6 +43,9 @@ Call this from your app’s Support button:
 await Reception.openChat();
 ```
 
+Report app events for automations set up in the dashboard with
+`await Reception.track('paywall_declined', { opensChat: true })`.
+
 Follow the [React Native guide](https://reception.sh/docs/react-native) to match your
 app’s theme, add unread badges, identify customers, and connect paywalls or embedded chat.
 

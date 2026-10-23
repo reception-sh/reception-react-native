@@ -50,6 +50,7 @@ export function mockNative() {
     ),
     openChat: jest.fn(async () => {}),
     closeChat: jest.fn(async () => {}),
+    track: jest.fn(async () => {}),
     setPushToken: jest.fn(async () => {}),
     handlePushNotification: jest.fn(async () => true),
     handleExpoNotification: jest.fn(async () => {}),

@@ -48,6 +48,7 @@ export interface NativeReception {
   }>;
   openChat(): Promise<void>;
   closeChat(): Promise<void>;
+  track(event: string, opensChat: boolean): Promise<void>;
   setPushToken(token: string, environment: string): Promise<void>;
   handlePushNotification(
     conversationId: string,

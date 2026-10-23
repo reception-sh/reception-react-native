@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add `track(event, { opensChat })` to report app events for automations set up in the dashboard. Requires Reception iOS SDK 1.5.
+
 ## 1.2.1 — 2026-10-22
 
 - Bundle Reception iOS SDK 1.4.1. The live chat connection keeps retrying after drops instead of stopping for good after eight over a session; opening the chat, sending a message or the network coming back reconnects at once.
