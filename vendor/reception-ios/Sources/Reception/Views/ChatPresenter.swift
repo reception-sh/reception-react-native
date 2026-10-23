@@ -32,6 +32,12 @@ internal final class ChatPresenter: NSObject, UIAdaptivePresentationControllerDe
             Log.debug("Chat presentation deferred, no active window")
             return
         }
+        // A screen that is still opening owns this moment; the chat would only fight it. Its message waits unread.
+        guard !presentingController.isBeingPresented else {
+            presentationPending = false
+            Log.debug("Chat presentation skipped, another screen is being presented")
+            return
+        }
 
         presentationPending = false
         Reception.shared.appearanceConfiguration.activate()
@@ -97,7 +103,8 @@ internal final class ChatPresenter: NSObject, UIAdaptivePresentationControllerDe
         guard let scene = scenes.first(where: { $0.activationState == .foregroundActive }) ?? scenes.first,
               let window = scene.windows.first(where: \.isKeyWindow) ?? scene.windows.first else { return nil }
         var controller = window.rootViewController
-        while let presented = controller?.presentedViewController { controller = presented }
+        // A paywall that is closing cannot present: the chat would vanish with it.
+        while let presented = controller?.presentedViewController, !presented.isBeingDismissed { controller = presented }
         return controller
     }
 }
