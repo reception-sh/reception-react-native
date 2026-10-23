@@ -34,6 +34,7 @@ test.each(['android', 'web'])(
     await Reception.configure({ appId: 'test' });
     await Reception.openChat();
     await Reception.closeChat();
+    await Reception.track('paywall_declined', { opensChat: true });
     await Reception.identify({ userId: 'test' });
     await Reception.setMetadata({ plan: 'test' });
     await Reception.setPushToken('abcd');

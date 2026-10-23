@@ -69,6 +69,9 @@ public final class ReceptionModule: Module, @unchecked Sendable {
       .runOnQueue(.main)
     AsyncFunction("closeChat") { MainActor.assumeIsolated { Reception.shared.closeChat() } }
       .runOnQueue(.main)
+    AsyncFunction("track") { (event: String, opensChat: Bool) in
+      MainActor.assumeIsolated { Reception.shared.track(event, opensChat: opensChat) }
+    }.runOnQueue(.main)
     AsyncFunction("setPushToken") { (token: String, environment: String) in
       MainActor.assumeIsolated {
         guard let data = PushToken.decode(token) else { return }

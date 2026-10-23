@@ -97,6 +97,29 @@ export const methods = {
   async closeChat(): Promise<void> {
     await call((module) => module.closeChat());
   },
+  /**
+   * Reports an app event, for example `'paywall_declined'`, for automations set up in the dashboard;
+   * a listening automation sends its message and can open the chat. With `opensChat`, the chat also
+   * opens again at later events for people who received it. Offline or without a listening
+   * automation, nothing happens.
+   */
+  async track(
+    event: string,
+    options: { opensChat?: boolean } = {},
+  ): Promise<void> {
+    await call(async (module) => {
+      if (
+        typeof event !== 'string' ||
+        !isRecord(options) ||
+        (options.opensChat !== undefined &&
+          typeof options.opensChat !== 'boolean')
+      ) {
+        warnInvalid('event');
+        return;
+      }
+      await module.track(event, options.opensChat ?? false);
+    });
+  },
   async setPushToken(
     token: string,
     environment: PushEnvironment = 'automatic',

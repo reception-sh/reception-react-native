@@ -65,6 +65,31 @@ test('push recognizes the SDK routing envelope and ignores unrelated payloads', 
   );
 });
 
+test('track forwards events and ignores invalid input', async () => {
+  await Reception.track('paywall_declined');
+  await Reception.track('paywall_declined', { opensChat: true });
+  expect(mock.native.track).toHaveBeenNthCalledWith(
+    1,
+    'paywall_declined',
+    false,
+  );
+  expect(mock.native.track).toHaveBeenNthCalledWith(
+    2,
+    'paywall_declined',
+    true,
+  );
+  // Untyped JS callers can pass anything.
+  await Reflect.apply(Reception.track, Reception, [42]);
+  await Reflect.apply(Reception.track, Reception, [
+    'paywall_declined',
+    { opensChat: 'yes' },
+  ]);
+  expect(mock.native.track).toHaveBeenCalledTimes(2);
+  expect(console.warn).toHaveBeenCalledWith(
+    '[Reception] Invalid event; ignored.',
+  );
+});
+
 test('deletion preserves code and HTTP status', async () => {
   mock.native.deleteData.mockResolvedValueOnce({
     state: initial,

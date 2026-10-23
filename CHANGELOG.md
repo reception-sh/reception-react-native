@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.0 — 2026-10-23
+
+- Add `track(event, { opensChat })` to report app events, such as a closed paywall or a cancelled purchase, for automations set up in the dashboard. A listening automation sends its message and can open the chat.
+- Bundle Reception iOS SDK 1.5.0. The chat opens once the App Store sheet has closed or a re-shown paywall has settled, so an automation's message never waits unread; subscription changes and paid access are reported for automations.
+
 ## 1.2.1 — 2026-10-22
 
 - Bundle Reception iOS SDK 1.4.1. The live chat connection keeps retrying after drops instead of stopping for good after eight over a session; opening the chat, sending a message or the network coming back reconnects at once.
