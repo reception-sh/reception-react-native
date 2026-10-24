@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.0 — 2026-10-24
+
+- Bundle Reception iOS SDK 1.6.0. The device registers with Reception at launch and on foreground instead of with the first message, so every install appears in the dashboard's Users page, and a conversation your team starts first loads, polls and badges in the app like any other. Expo notification routing is unchanged.
+
 ## 1.3.0 — 2026-10-23
 
 - Add `track(event, { opensChat })` to report app events, such as a closed paywall or a cancelled purchase, for automations set up in the dashboard. A listening automation sends its message and can open the chat.
