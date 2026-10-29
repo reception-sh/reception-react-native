@@ -75,6 +75,13 @@ export const Reception = {
   set onPaywall(value: ((id: string) => void) | null) {
     callbacks.onPaywall = value;
   },
+  /** Called after the chat closes when someone taps a link card; a set handler always counts as handled. Call Linking.openURL(url) to let the system open it. */
+  get onLink() {
+    return callbacks.onLink;
+  },
+  set onLink(value: ((url: string) => void) | null) {
+    callbacks.onLink = value;
+  },
   get paywallAvailability() {
     return callbacks.paywallAvailability;
   },
@@ -113,6 +120,24 @@ export const Reception = {
     }
     assignSetting('updatesAppBadge', value, (revision) =>
       module.setUpdatesAppBadge(value, revision),
+    );
+  },
+  get opensWebLinksInApp() {
+    warnUnavailable();
+    return getSnapshot().opensWebLinksInApp;
+  },
+  set opensWebLinksInApp(value: boolean) {
+    const module = native;
+    if (!module) {
+      warnUnavailable();
+      return;
+    }
+    if (typeof value !== 'boolean') {
+      warnInvalid('opensWebLinksInApp');
+      return;
+    }
+    assignSetting('opensWebLinksInApp', value, (revision) =>
+      module.setOpensWebLinksInApp(value, revision),
     );
   },
   get usesRemoteAppearance() {

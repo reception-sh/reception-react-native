@@ -29,6 +29,7 @@ test('all setting getters reflect assignment before native answers', () => {
     mock.native.setAppearance,
     mock.native.setLanguageOverride,
     mock.native.setUpdatesAppBadge,
+    mock.native.setOpensWebLinksInApp,
     mock.native.setLogLevel,
     mock.native.setPaywalls,
     mock.native.setUsesRemoteAppearance,
@@ -38,12 +39,14 @@ test('all setting getters reflect assignment before native answers', () => {
   Reception.appearance = { accentColor: '#112233' };
   Reception.languageOverride = 'de';
   Reception.updatesAppBadge = false;
+  Reception.opensWebLinksInApp = false;
   Reception.logLevel = 'debug';
   Reception.paywalls = [{ id: 'plans', title: 'Plans' }];
   Reception.usesRemoteAppearance = false;
   expect(Reception.appearance).toEqual({ accentColor: '#112233' });
   expect(Reception.languageOverride).toBe('de');
   expect(Reception.updatesAppBadge).toBe(false);
+  expect(Reception.opensWebLinksInApp).toBe(false);
   expect(Reception.logLevel).toBe('debug');
   expect(Reception.paywalls).toEqual([{ id: 'plans', title: 'Plans' }]);
   expect(Reception.usesRemoteAppearance).toBe(false);

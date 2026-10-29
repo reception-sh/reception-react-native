@@ -14,6 +14,7 @@ export const initial: Snapshot = {
   availablePaywalls: [],
   appearance: {},
   updatesAppBadge: true,
+  opensWebLinksInApp: true,
   usesRemoteAppearance: true,
   languageOverride: null,
   logLevel: 'info',
@@ -28,6 +29,7 @@ export function mockNative() {
     onState: new Set(),
     onEvent: new Set(),
     onPaywall: new Set(),
+    onLink: new Set(),
     onAvailability: new Set(),
   };
   const native = {
@@ -62,6 +64,10 @@ export function mockNative() {
       ...initial,
       updatesAppBadge,
     })),
+    setOpensWebLinksInApp: jest.fn(async (opensWebLinksInApp: boolean) => ({
+      ...initial,
+      opensWebLinksInApp,
+    })),
     setUsesRemoteAppearance: jest.fn(async (usesRemoteAppearance: boolean) => ({
       ...initial,
       usesRemoteAppearance,
@@ -79,6 +85,7 @@ export function mockNative() {
       paywalls,
     })),
     setPaywallHandler: jest.fn(async () => {}),
+    setLinkHandler: jest.fn(async () => {}),
     setPaywallAvailability: jest.fn(async () => initial),
     resolvePaywallAvailability: jest.fn(async () => {}),
     refreshPaywalls: jest.fn(async () => {}),

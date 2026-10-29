@@ -205,6 +205,32 @@ test('paywall callbacks and registrations forward without closing chat', async (
   expect(mock.native.refreshPaywalls).toHaveBeenCalledWith(true);
 });
 
+test('link handler forwards the URL, replaces and clears', async () => {
+  const first = jest.fn();
+  const next = jest.fn();
+  Reception.onLink = first;
+  expect(mock.native.setLinkHandler).toHaveBeenLastCalledWith(true);
+  Reception.onLink = next;
+  await mock.emit('onLink', { url: 'myapp://settings?tab=plan' });
+  expect(first).not.toHaveBeenCalled();
+  expect(next).toHaveBeenCalledWith('myapp://settings?tab=plan');
+  expect(Reception.onLink).toBe(next);
+  Reception.onLink = 'invalid' as unknown as null;
+  expect(Reception.onLink).toBe(next);
+  expect(mock.native.setLinkHandler).toHaveBeenCalledTimes(2);
+  Reception.onLink = null;
+  expect(mock.native.setLinkHandler).toHaveBeenLastCalledWith(false);
+  await mock.emit('onLink', { url: 'https://example.com' });
+  expect(next).toHaveBeenCalledTimes(1);
+});
+
+test('linkOpened events reach onEvent', async () => {
+  const onEvent = jest.fn();
+  Reception.onEvent = onEvent;
+  await mock.emit('onEvent', { type: 'linkOpened' });
+  expect(onEvent).toHaveBeenCalledWith({ type: 'linkOpened' });
+});
+
 test('paywall details pass through to the native module and invalid entries are ignored', async () => {
   const detailed = [
     {

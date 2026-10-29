@@ -26,6 +26,7 @@ export type ReceptionEvent =
         | 'imageSent'
         | 'reviewOpened'
         | 'paywallOpened'
+        | 'linkOpened'
         | 'dataDeleted';
     }
   | { type: 'identityRejected'; error: ReceptionError };

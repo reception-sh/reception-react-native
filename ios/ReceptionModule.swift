@@ -13,7 +13,7 @@ public final class ReceptionModule: Module, @unchecked Sendable {
   public func definition() -> ModuleDefinition {
     Name("ReceptionReactNative")
     Constant("version") { Reception.version }
-    Events("onState", "onEvent", "onPaywall", "onAvailability")
+    Events("onState", "onEvent", "onPaywall", "onLink", "onAvailability")
 
     AsyncFunction("connect") { (promise: Promise) in
       MainActor.assumeIsolated {
@@ -119,6 +119,14 @@ public final class ReceptionModule: Module, @unchecked Sendable {
           } as Any)
       }
     }.runOnQueue(.main)
+    AsyncFunction("setOpensWebLinksInApp") { (value: Bool, revision: Int, promise: Promise) in
+      MainActor.assumeIsolated {
+        promise.resolve(
+          self.bridge.applySetting("opensWebLinksInApp", revision: revision) {
+            Reception.shared.opensWebLinksInApp = value
+          } as Any)
+      }
+    }.runOnQueue(.main)
     AsyncFunction("setUsesRemoteAppearance") { (value: Bool, revision: Int, promise: Promise) in
       MainActor.assumeIsolated {
         promise.resolve(
@@ -156,6 +164,9 @@ public final class ReceptionModule: Module, @unchecked Sendable {
     }.runOnQueue(.main)
     AsyncFunction("setPaywallHandler") { (enabled: Bool) in
       MainActor.assumeIsolated { self.bridge.setPaywallHandler(enabled) }
+    }.runOnQueue(.main)
+    AsyncFunction("setLinkHandler") { (enabled: Bool) in
+      MainActor.assumeIsolated { self.bridge.setLinkHandler(enabled) }
     }.runOnQueue(.main)
     AsyncFunction("setPaywallAvailability") { (enabled: Bool, generation: Int, promise: Promise) in
       MainActor.assumeIsolated {

@@ -16,6 +16,7 @@ let confirmed: Snapshot = {
   availablePaywalls: [],
   appearance: {},
   updatesAppBadge: true,
+  opensWebLinksInApp: true,
   usesRemoteAppearance: true,
   languageOverride: null,
   logLevel: 'info',

@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+- Add `onLink(url)` for link cards: a message from your team can carry a button that opens a website, an App Store page, an email address or phone number, or a screen in your app. With a handler set, the chat closes and the handler receives the URL; it always counts as handled, so call `Linking.openURL(url)` to let the system open links you don't route yourself. Without a handler, the SDK opens links through the system.
+- Add the `linkOpened` event, emitted when someone taps a link card. Apps with an exhaustive `switch` over `ReceptionEvent['type']` need to add this case.
+- Add `opensWebLinksInApp` (iOS, default `true`): web links from link cards and message text open in an in-app Safari sheet over the chat. Set it to `false` to hand them to the system instead. It is a local setting; nothing is sent to Reception.
+- Bundle Reception iOS SDK 1.7.0. Web addresses in message text are tappable, and device registration reports the app's URL schemes and whether `onLink` is set, so the dashboard only sends links the app can open.
+
 ## 1.3.0 — 2026-10-23
 
 - Add `track(event, { opensChat })` to report app events, such as a closed paywall or a cancelled purchase, for automations set up in the dashboard. A listening automation sends its message and can open the chat.

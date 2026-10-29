@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   Button,
+  Linking,
   PlatformColor,
   ScrollView,
   StyleSheet,
@@ -63,6 +64,10 @@ export default function App() {
     Reception.onPaywall = (id) => {
       record(`onPaywall:${id}, chat:${Reception.isChatOpen}`);
     };
+    Reception.onLink = (url) => {
+      record(`onLink:${url}, chat:${Reception.isChatOpen}`);
+      if (url.startsWith('https:')) void Linking.openURL(url);
+    };
     const paywalls = Reception.addAvailablePaywallsListener((values) =>
       setAvailable(values.map((value) => value.id).join(', ')),
     );
@@ -70,6 +75,7 @@ export default function App() {
       paywalls.remove();
       Reception.onEvent = null;
       Reception.onPaywall = null;
+      Reception.onLink = null;
     };
   }, []);
 

@@ -48,12 +48,14 @@ test.each(['android', 'web'])(
     ).toBe(false);
     Reception.appearance = { accentColor: '#ff0000' };
     Reception.updatesAppBadge = false;
+    Reception.opensWebLinksInApp = false;
     Reception.usesRemoteAppearance = false;
     Reception.languageOverride = 'de';
     Reception.logLevel = 'off';
     Reception.paywalls = [{ id: 'plans', title: 'Plans' }];
     Reception.onEvent = jest.fn();
     Reception.onPaywall = jest.fn();
+    Reception.onLink = jest.fn();
     Reception.paywallAvailability = async () => true;
     Reception.addUnreadCountListener(jest.fn()).remove();
     Reception.addChatOpenListener(jest.fn()).remove();
@@ -64,9 +66,11 @@ test.each(['android', 'web'])(
     expect(Reception.unreadCount).toBe(0);
     expect(Reception.appearance).toEqual(initial.appearance);
     expect(Reception.paywalls).toEqual([]);
+    expect(Reception.opensWebLinksInApp).toBe(true);
     expect(Reception.availablePaywalls).toEqual([]);
     expect(Reception.onEvent).toBeNull();
     expect(Reception.onPaywall).toBeNull();
+    expect(Reception.onLink).toBeNull();
     expect(Reception.paywallAvailability).toBeNull();
     expect(requireNative).not.toHaveBeenCalled();
     expect(console.warn).toHaveBeenCalledTimes(1);

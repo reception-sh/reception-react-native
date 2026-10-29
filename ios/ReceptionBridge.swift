@@ -33,6 +33,7 @@ internal final class ReceptionBridge {
     guard Self.current === self else { return }
     Reception.shared.onEvent = nil
     Reception.shared.onPaywall = nil
+    Reception.shared.onLink = nil
     // A missing JS runtime must not turn a previously filtered offer into an available one.
     if Reception.shared.paywallAvailability != nil {
       Reception.shared.paywallAvailability = { _ in false }
@@ -50,6 +51,7 @@ internal final class ReceptionBridge {
       "availablePaywalls": sdk.availablePaywalls.map(PaywallValues.value),
       "paywalls": sdk.paywalls.map(PaywallValues.value),
       "appearance": Self.appearanceValues, "updatesAppBadge": sdk.updatesAppBadge,
+      "opensWebLinksInApp": sdk.opensWebLinksInApp,
       "usesRemoteAppearance": sdk.usesRemoteAppearance,
       "languageOverride": sdk.languageOverride as Any? ?? NSNull(),
       "logLevel": ["off", "error", "info", "debug"][Reception.logLevel.rawValue],
@@ -67,6 +69,18 @@ internal final class ReceptionBridge {
   func setPaywallHandler(_ enabled: Bool) {
     Reception.shared.onPaywall =
       enabled ? { [weak self] id in self?.emit?("onPaywall", ["id": id]) } : nil
+  }
+
+  // A registered JS handler always counts as handled; JS calls Linking.openURL to defer.
+  func setLinkHandler(_ enabled: Bool) {
+    guard enabled else {
+      Reception.shared.onLink = nil
+      return
+    }
+    Reception.shared.onLink = { [weak self] url in
+      self?.emit?("onLink", ["url": url.absoluteString])
+      return true
+    }
   }
 
   func setAvailability(_ enabled: Bool, generation: Int) {
@@ -110,6 +124,7 @@ internal final class ReceptionBridge {
     case .imageSent: emit?("onEvent", ["type": "imageSent"])
     case .reviewOpened: emit?("onEvent", ["type": "reviewOpened"])
     case .paywallOpened: emit?("onEvent", ["type": "paywallOpened"])
+    case .linkOpened: emit?("onEvent", ["type": "linkOpened"])
     case .dataDeleted: emit?("onEvent", ["type": "dataDeleted"])
     }
   }

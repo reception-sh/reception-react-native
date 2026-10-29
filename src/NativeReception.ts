@@ -11,6 +11,7 @@ import type {
 export interface Settings {
   appearance: Appearance;
   updatesAppBadge: boolean;
+  opensWebLinksInApp: boolean;
   usesRemoteAppearance: boolean;
   languageOverride: string | null;
   logLevel: LogLevel;
@@ -28,6 +29,7 @@ export interface NativeEvents {
   onState: Snapshot;
   onEvent: NativeEvent;
   onPaywall: { id: string };
+  onLink: { url: string };
   onAvailability: { requestId: string; id: string; generation: number };
 }
 export interface NativeReception {
@@ -61,6 +63,7 @@ export interface NativeReception {
   ): Promise<void>;
   setAppearance(value: string, revision: number): Promise<Snapshot>;
   setUpdatesAppBadge(value: boolean, revision: number): Promise<Snapshot>;
+  setOpensWebLinksInApp(value: boolean, revision: number): Promise<Snapshot>;
   setUsesRemoteAppearance(value: boolean, revision: number): Promise<Snapshot>;
   setLanguageOverride(
     value: string | null,
@@ -72,6 +75,7 @@ export interface NativeReception {
     revision: number,
   ): Promise<Snapshot>;
   setPaywallHandler(enabled: boolean): Promise<void>;
+  setLinkHandler(enabled: boolean): Promise<void>;
   setPaywallAvailability(
     enabled: boolean,
     generation: number,
