@@ -78,13 +78,18 @@ internal final class ReceptionBridge {
       guard let id = entry["id"] as? String else { return nil }
       if let value = entry["value"] as? String {
         return ReceptionScreen(id, value: value) { [weak self] given in
-          self?.emit?("onScreen", ["id": id, "value": given])
+          self?.openScreen(id, value: given)
         }
       }
-      return ReceptionScreen(id) { [weak self] in
-        self?.emit?("onScreen", ["id": id, "value": NSNull()])
-      }
+      return ReceptionScreen(id) { [weak self] in self?.openScreen(id, value: nil) }
     }
+  }
+
+  /// The chat has closed; JS gets that state before `open` runs, so `isChatOpen` already reads false there.
+  private func openScreen(_ id: String, value: String?) {
+    guard connected else { return }
+    emit?("onState", snapshot())
+    emit?("onScreen", ["id": id, "value": value as Any? ?? NSNull()])
   }
 
   func setAvailability(_ enabled: Bool, generation: Int) {
