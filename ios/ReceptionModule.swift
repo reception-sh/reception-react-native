@@ -13,7 +13,7 @@ public final class ReceptionModule: Module, @unchecked Sendable {
   public func definition() -> ModuleDefinition {
     Name("ReceptionReactNative")
     Constant("version") { Reception.version }
-    Events("onState", "onEvent", "onPaywall", "onLink", "onAvailability")
+    Events("onState", "onEvent", "onPaywall", "onScreen", "onAvailability")
 
     AsyncFunction("connect") { (promise: Promise) in
       MainActor.assumeIsolated {
@@ -165,8 +165,8 @@ public final class ReceptionModule: Module, @unchecked Sendable {
     AsyncFunction("setPaywallHandler") { (enabled: Bool) in
       MainActor.assumeIsolated { self.bridge.setPaywallHandler(enabled) }
     }.runOnQueue(.main)
-    AsyncFunction("setLinkHandler") { (enabled: Bool) in
-      MainActor.assumeIsolated { self.bridge.setLinkHandler(enabled) }
+    AsyncFunction("setScreens") { (screens: [[String: Any]]) in
+      MainActor.assumeIsolated { self.bridge.setScreens(screens) }
     }.runOnQueue(.main)
     AsyncFunction("setPaywallAvailability") { (enabled: Bool, generation: Int, promise: Promise) in
       MainActor.assumeIsolated {

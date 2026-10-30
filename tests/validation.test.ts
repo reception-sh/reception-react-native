@@ -6,7 +6,7 @@ beforeEach(() => {
 afterEach(() => {
   jest.restoreAllMocks();
 });
-test('all 23 public appearance options map without changing valid values', () => {
+test('all 24 public appearance options map without changing valid values', () => {
   const value = {
     accentColor: '#ff8800',
     onAccentColor: '#ffffff80',
@@ -31,8 +31,9 @@ test('all 23 public appearance options map without changing valid values', () =>
     hidesTitle: true,
     hidesWelcomeTitle: false,
     hidesWelcomeText: true,
+    hidesPushStatus: true,
   };
-  expect(Object.keys(value)).toHaveLength(23);
+  expect(Object.keys(value)).toHaveLength(24);
   expect(validateAppearance(value, {})).toEqual(value);
 });
 test.each([

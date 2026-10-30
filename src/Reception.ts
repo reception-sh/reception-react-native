@@ -1,10 +1,12 @@
 import { native, warnUnavailable } from './NativeReception';
 import { sdkVersion } from './sdkVersion';
 import { callbacks } from './callbacks';
+import { screens } from './screens';
 import { getSnapshot, listen, assignSetting } from './state';
 import { isPaywall, validateAppearance, warnInvalid } from './validation';
 import { methods } from './methods';
 import type {
+  ReceptionScreen,
   Appearance,
   LogLevel,
   PaywallAvailability,
@@ -75,12 +77,16 @@ export const Reception = {
   set onPaywall(value: ((id: string) => void) | null) {
     callbacks.onPaywall = value;
   },
-  /** Called after the chat closes when someone taps a link card; a set handler always counts as handled. Call Linking.openURL(url) to let the system open it. */
-  get onLink() {
-    return callbacks.onLink;
+  /**
+   * Places in the app that link cards can open, such as tabs, screens or the paywall. The SDK reports their IDs, so the
+   * dashboard offers them by name and sends a screen link only to app versions that list it. `open` runs after the chat
+   * closes. Set it again at startup after a JavaScript reload.
+   */
+  get screens() {
+    return screens.value;
   },
-  set onLink(value: ((url: string) => void) | null) {
-    callbacks.onLink = value;
+  set screens(value: readonly ReceptionScreen[]) {
+    screens.value = value;
   },
   get paywallAvailability() {
     return callbacks.paywallAvailability;

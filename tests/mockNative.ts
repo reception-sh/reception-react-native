@@ -29,7 +29,7 @@ export function mockNative() {
     onState: new Set(),
     onEvent: new Set(),
     onPaywall: new Set(),
-    onLink: new Set(),
+    onScreen: new Set(),
     onAvailability: new Set(),
   };
   const native = {
@@ -85,7 +85,7 @@ export function mockNative() {
       paywalls,
     })),
     setPaywallHandler: jest.fn(async () => {}),
-    setLinkHandler: jest.fn(async () => {}),
+    setScreens: jest.fn(async () => {}),
     setPaywallAvailability: jest.fn(async () => initial),
     resolvePaywallAvailability: jest.fn(async () => {}),
     refreshPaywalls: jest.fn(async () => {}),

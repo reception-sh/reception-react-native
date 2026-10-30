@@ -62,7 +62,17 @@ export interface Appearance {
   hidesTitle?: boolean;
   hidesWelcomeTitle?: boolean;
   hidesWelcomeText?: boolean;
+  /** Hides the "You'll get a notification when we reply." line under the person's latest message. */
+  hidesPushStatus?: boolean;
 }
+
+/**
+ * A place in the app that link cards can open: a tab, a screen, a sheet, the paywall. `value` names what a screen
+ * needs from the link, such as "Order number"; its `open` then receives it.
+ */
+export type ReceptionScreen =
+  | { id: string; value?: undefined; open: () => void }
+  | { id: string; value: string; open: (value: string) => void };
 
 export interface ReceptionState {
   readonly isConfigured: boolean;

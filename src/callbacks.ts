@@ -6,7 +6,6 @@ import type { PaywallAvailability, ReceptionEvent } from './types';
 
 let eventHandler: ((event: ReceptionEvent) => void) | null = null;
 let paywallHandler: ((id: string) => void) | null = null;
-let linkHandler: ((url: string) => void) | null = null;
 let availability: PaywallAvailability | null = null;
 let generation = 0;
 export const callbacks = {
@@ -38,21 +37,6 @@ export const callbacks = {
     }
     paywallHandler = value;
     void native?.setPaywallHandler(value !== null).catch(bridgeFailure);
-  },
-  get onLink() {
-    return linkHandler;
-  },
-  set onLink(value: typeof linkHandler) {
-    if (!native) {
-      warnUnavailable();
-      return;
-    }
-    if (value !== null && typeof value !== 'function') {
-      warnInvalid('onLink');
-      return;
-    }
-    linkHandler = value;
-    void native?.setLinkHandler(value !== null).catch(bridgeFailure);
   },
   get paywallAvailability() {
     return availability;
@@ -99,9 +83,6 @@ if (native) {
   });
   native.addListener('onPaywall', ({ id }) => {
     paywallHandler?.(id);
-  });
-  native.addListener('onLink', ({ url }) => {
-    linkHandler?.(url);
   });
   native.addListener('onAvailability', async (request) => {
     const handler = availability;

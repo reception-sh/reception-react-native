@@ -13,6 +13,7 @@ export type {
   ReceptionEvent,
   ReceptionPaywall,
   ReceptionPaywallProduct,
+  ReceptionScreen,
   ReceptionState,
   Subscription,
   WelcomeIcon,

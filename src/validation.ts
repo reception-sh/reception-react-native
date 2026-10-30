@@ -51,6 +51,7 @@ const validators: Record<keyof Appearance, (value: unknown) => boolean> = {
   hidesTitle: boolean,
   hidesWelcomeTitle: boolean,
   hidesWelcomeText: boolean,
+  hidesPushStatus: boolean,
   welcomeIcon: nullable(
     (value) =>
       isRecord(value) &&

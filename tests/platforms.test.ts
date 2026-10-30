@@ -55,7 +55,7 @@ test.each(['android', 'web'])(
     Reception.paywalls = [{ id: 'plans', title: 'Plans' }];
     Reception.onEvent = jest.fn();
     Reception.onPaywall = jest.fn();
-    Reception.onLink = jest.fn();
+    Reception.screens = [{ id: 'settings', open: jest.fn() }];
     Reception.paywallAvailability = async () => true;
     Reception.addUnreadCountListener(jest.fn()).remove();
     Reception.addChatOpenListener(jest.fn()).remove();
@@ -70,7 +70,7 @@ test.each(['android', 'web'])(
     expect(Reception.availablePaywalls).toEqual([]);
     expect(Reception.onEvent).toBeNull();
     expect(Reception.onPaywall).toBeNull();
-    expect(Reception.onLink).toBeNull();
+    expect(Reception.screens).toEqual([]);
     expect(Reception.paywallAvailability).toBeNull();
     expect(requireNative).not.toHaveBeenCalled();
     expect(console.warn).toHaveBeenCalledTimes(1);

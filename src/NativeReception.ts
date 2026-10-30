@@ -29,7 +29,7 @@ export interface NativeEvents {
   onState: Snapshot;
   onEvent: NativeEvent;
   onPaywall: { id: string };
-  onLink: { url: string };
+  onScreen: { id: string; value: string | null };
   onAvailability: { requestId: string; id: string; generation: number };
 }
 export interface NativeReception {
@@ -75,7 +75,7 @@ export interface NativeReception {
     revision: number,
   ): Promise<Snapshot>;
   setPaywallHandler(enabled: boolean): Promise<void>;
-  setLinkHandler(enabled: boolean): Promise<void>;
+  setScreens(screens: { id: string; value: string | null }[]): Promise<void>;
   setPaywallAvailability(
     enabled: boolean,
     generation: number,

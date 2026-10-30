@@ -33,7 +33,8 @@ internal final class ReceptionBridge {
     guard Self.current === self else { return }
     Reception.shared.onEvent = nil
     Reception.shared.onPaywall = nil
-    Reception.shared.onLink = nil
+    // Without JS nothing can open a screen, so none is reported until JS lists them again.
+    Reception.shared.screens = []
     // A missing JS runtime must not turn a previously filtered offer into an available one.
     if Reception.shared.paywallAvailability != nil {
       Reception.shared.paywallAvailability = { _ in false }
@@ -71,15 +72,18 @@ internal final class ReceptionBridge {
       enabled ? { [weak self] id in self?.emit?("onPaywall", ["id": id]) } : nil
   }
 
-  // A registered JS handler always counts as handled; JS calls Linking.openURL to defer.
-  func setLinkHandler(_ enabled: Bool) {
-    guard enabled else {
-      Reception.shared.onLink = nil
-      return
-    }
-    Reception.shared.onLink = { [weak self] url in
-      self?.emit?("onLink", ["url": url.absoluteString])
-      return true
+  // JS validated the list; each screen forwards its ID and value, and JS runs the matching open.
+  func setScreens(_ screens: [[String: Any]]) {
+    Reception.shared.screens = screens.compactMap { entry in
+      guard let id = entry["id"] as? String else { return nil }
+      if let value = entry["value"] as? String {
+        return ReceptionScreen(id, value: value) { [weak self] given in
+          self?.emit?("onScreen", ["id": id, "value": given])
+        }
+      }
+      return ReceptionScreen(id) { [weak self] in
+        self?.emit?("onScreen", ["id": id, "value": NSNull()])
+      }
     }
   }
 

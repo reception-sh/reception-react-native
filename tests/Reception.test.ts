@@ -205,23 +205,39 @@ test('paywall callbacks and registrations forward without closing chat', async (
   expect(mock.native.refreshPaywalls).toHaveBeenCalledWith(true);
 });
 
-test('link handler forwards the URL, replaces and clears', async () => {
-  const first = jest.fn();
-  const next = jest.fn();
-  Reception.onLink = first;
-  expect(mock.native.setLinkHandler).toHaveBeenLastCalledWith(true);
-  Reception.onLink = next;
-  await mock.emit('onLink', { url: 'myapp://settings?tab=plan' });
-  expect(first).not.toHaveBeenCalled();
-  expect(next).toHaveBeenCalledWith('myapp://settings?tab=plan');
-  expect(Reception.onLink).toBe(next);
-  Reception.onLink = 'invalid' as unknown as null;
-  expect(Reception.onLink).toBe(next);
-  expect(mock.native.setLinkHandler).toHaveBeenCalledTimes(2);
-  Reception.onLink = null;
-  expect(mock.native.setLinkHandler).toHaveBeenLastCalledWith(false);
-  await mock.emit('onLink', { url: 'https://example.com' });
-  expect(next).toHaveBeenCalledTimes(1);
+test('screens are reported by ID and value and open from native taps', async () => {
+  const settings = jest.fn();
+  const order = jest.fn();
+  Reception.screens = [
+    { id: 'settings', open: settings },
+    { id: 'order', value: 'Order number', open: order },
+  ];
+  expect(mock.native.setScreens).toHaveBeenLastCalledWith([
+    { id: 'settings', value: null },
+    { id: 'order', value: 'Order number' },
+  ]);
+  await mock.emit('onScreen', { id: 'settings', value: null });
+  await mock.emit('onScreen', { id: 'order', value: '123' });
+  await mock.emit('onScreen', { id: 'order', value: null });
+  await mock.emit('onScreen', { id: 'gone', value: null });
+  expect(settings).toHaveBeenCalledTimes(1);
+  expect(order).toHaveBeenCalledTimes(1);
+  expect(order).toHaveBeenCalledWith('123');
+  for (const invalid of [
+    'settings',
+    [{ id: 'bad id', open: settings }],
+    [{ id: 'x' }],
+    [{ id: 'x', value: ' ', open: order }],
+  ]) {
+    Reception.screens = invalid as unknown as [];
+  }
+  expect(mock.native.setScreens).toHaveBeenCalledTimes(1);
+  expect(Reception.screens.map((screen) => screen.id)).toEqual([
+    'settings',
+    'order',
+  ]);
+  Reception.screens = [];
+  expect(mock.native.setScreens).toHaveBeenLastCalledWith([]);
 });
 
 test('linkOpened events reach onEvent', async () => {

@@ -8,10 +8,11 @@ internal enum Theme {
     static let headerFadeOverlap: CGFloat = 64
     static let sheetTopInset: CGFloat = 20
     static let layoutSettleDuration = 0.25
-    static let deliveryStatusAnimation = Animation.easeOut(duration: 0.2)
-    static let messageAnimation = Animation.easeOut(duration: 0.25)
+    static let deliveryStatusAnimation = Animation.smooth(duration: 0.2)
+    // Springs, like Messages: a bubble lands with a little give instead of easing to a stop.
+    static let messageAnimation = Animation.spring(duration: 0.3, bounce: 0.15)
     static let automationTypingDuration = Duration.milliseconds(800)
-    static let sendButtonAnimation = Animation.easeOut(duration: 0.2)
+    static let sendButtonAnimation = Animation.snappy(duration: 0.2)
     static let uploadProgressHorizontalInset: CGFloat = 24
     static let sendingDotRestingOpacity = 0.35
     static let sendingDotOpacityRange = 0.65
@@ -114,6 +115,20 @@ internal enum Theme {
     // iOS 26 reserves a 20-pt toolbar margin; align the circle to our 16-pt edge.
     static let toolbarGlassCorrection: CGFloat = 4
     static let dismissFill = Color(uiColor: .secondarySystemFill)
+    static let jumpToLatestHeight: CGFloat = 36
+    static let jumpToLatestTarget: CGFloat = 44
+    static let jumpToLatestIcon: CGFloat = 13
+    static let jumpToLatestMaximumScale: CGFloat = 1.5
+    static let jumpToLatestHorizontal: CGFloat = 14
+    static let jumpToLatestLabelSpacing: CGFloat = 6
+    static let jumpToLatestGap: CGFloat = 12
+    static let jumpToLatestRise: CGFloat = 12
+    static let jumpToLatestShadow = Color.black.opacity(0.06)
+    static let jumpToLatestShadowRadius: CGFloat = 3
+    static let jumpToLatestShadowY: CGFloat = 1
+    static let jumpToLatestCountLimit = 99
+    static let jumpToLatestScrollDuration = 0.35
+    static let jumpToLatestScrollAnimation = Animation.easeInOut(duration: jumpToLatestScrollDuration)
     static let minimumZoom: CGFloat = 1
     static let maximumZoom: CGFloat = 5
     static let doubleTapZoom: CGFloat = 3
@@ -131,6 +146,11 @@ internal enum Theme {
     static let imageBorderWidth: CGFloat = 0.5
     static let imagePlaceholder = Color(uiColor: .secondarySystemFill)
     static let chip: CGFloat = 56
+    static let pushPromptSpacing: CGFloat = 4
+    static let pushPromptVertical: CGFloat = 4
+    static let pushPromptButtonSpacing: CGFloat = 28
+    /// Text buttons keep a usable tap height without looking like filled buttons.
+    static let pushPromptButtonHeight: CGFloat = 32
     @MainActor static var background: Color { Reception.resolvedAppearance.chatBackground ?? Color(uiColor: .systemBackground) }
     @MainActor static var secondary: Color { Reception.resolvedAppearance.incomingBackground ?? Color(uiColor: .secondarySystemBackground) }
 

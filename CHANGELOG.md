@@ -1,11 +1,13 @@
 # Changelog
 
-## [Unreleased]
+## 1.4.0 — Unreleased
 
-- Add `onLink(url)` for link cards: a message from your team can carry a button that opens a website, an App Store page, an email address or phone number, or a screen in your app. With a handler set, the chat closes and the handler receives the URL; it always counts as handled, so call `Linking.openURL(url)` to let the system open links you don't route yourself. Without a handler, the SDK opens links through the system.
+- The chat can ask for notification permission right after the person's message, when **Ask for push notifications** is on in the dashboard, and confirms under their latest message that replies will arrive as notifications. Hide that line with the new `appearance.hidesPushStatus`. No code is needed beyond the existing push setup.
+- Add `Reception.screens`: the places in your app that link cards can open, such as tabs, screens or the paywall, each `{ id, open }`, or `{ id, value: 'Order number', open: (number) => … }` for a screen that takes a value from the link. The dashboard offers them by name and sends a screen link only to app versions that list it; `open` runs after the chat closes. No URL scheme or linking setup is needed. Set it again at startup after a JavaScript reload.
 - Add the `linkOpened` event, emitted when someone taps a link card. Apps with an exhaustive `switch` over `ReceptionEvent['type']` need to add this case.
 - Add `opensWebLinksInApp` (iOS, default `true`): web links from link cards and message text open in an in-app Safari sheet over the chat. Set it to `false` to hand them to the system instead. It is a local setting; nothing is sent to Reception.
-- Bundle Reception iOS SDK 1.7.0. Web addresses in message text are tappable, and device registration reports the app's URL schemes and whether `onLink` is set, so the dashboard only sends links the app can open.
+- Link cards: a message from your team can carry a button that opens a website, another app's link, an App Store page or offer code, an email address, a phone number, your app's page in iOS Settings, or one of your `screens`. Only screens need code.
+- Bundle Reception iOS SDK 1.7.0: the device registers on launch so every install appears on the Users page, the chat keeps your place when you scroll up and shows a “new messages” button, web addresses in message text are tappable, a long press on a bubble offers Copy, and device registration reports the app's screens.
 
 ## 1.3.0 — 2026-10-23
 
