@@ -7,7 +7,7 @@
 - Add the `linkOpened` event, emitted when someone taps a link card. Apps with an exhaustive `switch` over `ReceptionEvent['type']` need to add this case.
 - Add `opensWebLinksInApp` (iOS, default `true`): web links from link cards and message text open in the app that owns them (for example WhatsApp or Instagram), otherwise in an in-app Safari sheet over the chat. Set it to `false` to hand them to the system instead. It is a local setting; nothing is sent to Reception.
 - The chat can ask for notification permission right after the person's message, when **Ask for push notifications** is on in the dashboard, and confirms under their latest message that replies will arrive as notifications. Hide that line with the new `appearance.hidesPushStatus`. No code is needed beyond the existing push setup.
-- Bundle Reception iOS SDK 1.7.0: the chat keeps your place when you scroll up and shows a “new messages” button, and device registration reports the app's screens.
+- Bundle Reception iOS SDK 1.7.0: the chat keeps your place when you scroll up and shows a “new messages” button, and device registration reports the app's screens and the original transaction IDs of App Store purchases, so App Store notifications connected in the dashboard reach the person.
 
 ## 1.4.0 — 2026-10-24
 
