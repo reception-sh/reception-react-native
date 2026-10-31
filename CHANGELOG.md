@@ -1,13 +1,13 @@
 # Changelog
 
-## 1.5.0 — Unreleased
+## 1.5.0 — 2026-10-31
 
 - Link cards: a message from your team can carry a button that opens a website, another app's link, an App Store page or offer code, an email address, a phone number, your app's page in iOS Settings, or one of your `screens`. Only screens need code.
 - Add `Reception.screens`: the places in your app that link cards can open, such as tabs, screens or the paywall, each `{ id, open }`, or `{ id, value: 'Order number', open: (number) => … }` for a screen that takes a value from the link. The dashboard offers them by name and sends a screen link only to app versions that list it; `open` runs after the chat closes. No URL scheme or linking setup is needed. Set it again at startup after a JavaScript reload.
 - Add the `linkOpened` event, emitted when someone taps a link card. Apps with an exhaustive `switch` over `ReceptionEvent['type']` need to add this case.
 - Add `opensWebLinksInApp` (iOS, default `true`): web links from link cards and message text open in the app that owns them (for example WhatsApp or Instagram), otherwise in an in-app Safari sheet over the chat. Set it to `false` to hand them to the system instead. It is a local setting; nothing is sent to Reception.
 - The chat can ask for notification permission right after the person's message, when **Ask for push notifications** is on in the dashboard, and confirms under their latest message that replies will arrive as notifications. Hide that line with the new `appearance.hidesPushStatus`. No code is needed beyond the existing push setup.
-- Bundle Reception iOS SDK 1.7.0: the chat keeps your place when you scroll up and shows a “new messages” button, and device registration reports the app's screens and the original transaction IDs of App Store purchases, so App Store notifications connected in the dashboard reach the person.
+- Bundle Reception iOS SDK 1.7.0: the chat keeps your place when you scroll up and shows a “new messages” button, and device registration reports the app's screens and the original transaction IDs of App Store purchases, so App Store notifications connected in the dashboard reach the person. While typing, the chat sheet closes by dragging its grabber or title bar; a drag over the messages puts the keyboard away.
 
 ## 1.4.0 — 2026-10-24
 
