@@ -1,4 +1,4 @@
-import { validateAppearance } from '../src/validation';
+import { notificationSmallIcon, validateAppearance } from '../src/validation';
 
 beforeEach(() => {
   jest.spyOn(console, 'warn').mockImplementation(() => {});
@@ -93,4 +93,32 @@ test.each([
   const previous = { accentColor: { light: '#abcdef', dark: '#123456' } };
   expect(validateAppearance({ accentColor: pair }, previous)).toEqual(previous);
   expect(console.warn).toHaveBeenCalledTimes(1);
+});
+
+test('notification small icon names are Android drawable names up to 64 characters', () => {
+  expect(notificationSmallIcon(undefined)).toBeNull();
+  expect(notificationSmallIcon({})).toBeNull();
+  expect(console.warn).not.toHaveBeenCalled();
+  for (const valid of ['ic_notification', 'a', 'a'.repeat(64), 'icon_2'])
+    expect(notificationSmallIcon({ notificationSmallIcon: valid })).toBe(valid);
+  for (const invalid of [
+    '',
+    'Icon',
+    '_icon',
+    '2icon',
+    'ic-notification',
+    'ic.notification',
+    'a'.repeat(65),
+    42,
+    null,
+  ])
+    expect(
+      notificationSmallIcon({ notificationSmallIcon: invalid }),
+    ).toBeNull();
+  expect(notificationSmallIcon('ic_notification')).toBeNull();
+  expect(notificationSmallIcon(null)).toBeNull();
+  expect(console.warn).toHaveBeenCalledTimes(11);
+  expect(console.warn).toHaveBeenLastCalledWith(
+    '[Reception] Invalid android options; ignored.',
+  );
 });

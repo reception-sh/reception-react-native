@@ -2,6 +2,7 @@ package sh.reception.reactnative
 
 import android.content.Context
 import android.graphics.Typeface
+import android.util.Log
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
@@ -28,12 +29,25 @@ internal object AppearanceResources {
 
   /** A drawable resource of the app by name, such as `logo` for `res/drawable/logo.png`. */
   fun image(context: Context, name: String): Painter? {
-    if (name.isEmpty()) return null
-    @Suppress("DiscouragedApi")
-    val id = context.resources.getIdentifier(name, "drawable", context.packageName)
-    if (id == 0) return null
+    val id = drawableId(context, name) ?: return null
     val drawable = ContextCompat.getDrawable(context, id) ?: return null
     if (drawable.intrinsicWidth <= 0 || drawable.intrinsicHeight <= 0) return null
     return BitmapPainter(drawable.toBitmap().asImageBitmap())
   }
+
+  /** The notification small icon's resource ID; an unknown name logs a warning and keeps the SDK's glyph. */
+  fun notificationIcon(context: Context, name: String): Int? {
+    val id = drawableId(context, name)
+    if (id == null) Log.w(TAG, "Missing notification small icon ignored")
+    return id
+  }
+
+  private fun drawableId(context: Context, name: String): Int? {
+    if (name.isEmpty()) return null
+    @Suppress("DiscouragedApi")
+    val id = context.resources.getIdentifier(name, "drawable", context.packageName)
+    return id.takeIf { it != 0 }
+  }
+
+  private const val TAG = "Reception"
 }

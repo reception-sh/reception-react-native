@@ -35,7 +35,11 @@ export interface NativeEvents {
 export interface NativeReception {
   readonly version: string;
   connect(): Promise<Snapshot>;
-  configure(appId: string): Promise<Snapshot>;
+  /** iOS ignores `notificationSmallIcon`. */
+  configure(
+    appId: string,
+    notificationSmallIcon: string | null,
+  ): Promise<Snapshot>;
   identify(
     userId: string | null,
     name: string | null,

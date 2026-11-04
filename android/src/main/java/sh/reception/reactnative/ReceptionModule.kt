@@ -34,7 +34,8 @@ class ReceptionModule : Module() {
       bridge.connect { name, payload -> sendEvent(name, payload) }
     }.runOnQueue(Queues.MAIN)
 
-    AsyncFunction("configure") { appId: String ->
+    AsyncFunction("configure") { appId: String, notificationSmallIcon: String? ->
+      Reception.notificationSmallIcon = notificationSmallIcon?.let { AppearanceResources.notificationIcon(context, it) }
       Reception.configure(context, appId)
       noteCurrentActivity()
       bridge.snapshot()

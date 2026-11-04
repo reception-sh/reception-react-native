@@ -16,6 +16,18 @@ export interface ReceptionPaywall {
   /** False lists an offering without a paywall for your team; it is never opened by a card. */
   readonly presentable?: boolean;
 }
+export interface ConfigureOptions {
+  appId: string;
+  /** Android-only settings; iOS ignores them. */
+  android?: {
+    /**
+     * The app's drawable resource for Reception's reply notifications, such as `ic_notification` for
+     * `res/drawable/ic_notification.xml`: lowercase letters, digits and underscores, at most 64 characters. A name
+     * the app does not contain keeps the SDK's built-in glyph and logs a warning.
+     */
+    notificationSmallIcon?: string;
+  };
+}
 export type PushEnvironment = 'automatic' | 'sandbox' | 'production';
 export type LogLevel = 'off' | 'error' | 'info' | 'debug';
 export type ReceptionEvent =

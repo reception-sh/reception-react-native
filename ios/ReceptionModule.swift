@@ -24,7 +24,8 @@ public final class ReceptionModule: Module, @unchecked Sendable {
     }.runOnQueue(.main)
     OnDestroy { [bridge] in Task { @MainActor in bridge.invalidate() } }
 
-    AsyncFunction("configure") { (appId: String, promise: Promise) in
+    // The Android notification small icon has no iOS counterpart.
+    AsyncFunction("configure") { (appId: String, _: String?, promise: Promise) in
       MainActor.assumeIsolated {
         Reception.configure(appId: appId)
         promise.resolve(self.bridge.snapshot() as Any)

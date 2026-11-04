@@ -94,6 +94,22 @@ Compose
 see the [push setup](https://reception.sh/docs/react-native#push). The main package
 import does not load `expo-notifications`.
 
+### Android notification icon
+
+Reception's reply notifications on Android show the SDK's built-in glyph. To use your app's own monochrome icon,
+name its drawable resource when you configure:
+
+```typescript
+await Reception.configure({
+  appId: 'app_YOUR_APP_ID',
+  android: { notificationSmallIcon: 'ic_notification' },
+});
+```
+
+The name is the resource's file name without extension (`res/drawable/ic_notification.xml`): lowercase letters,
+digits and underscores, at most 64 characters. A name the app does not contain logs a warning and keeps the built-in
+glyph. iOS ignores the `android` options.
+
 ## Compatibility
 
 Web and other platforms have no Reception native code. Calls do nothing, warn once,

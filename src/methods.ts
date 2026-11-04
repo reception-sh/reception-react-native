@@ -7,8 +7,8 @@ import {
 import { ReceptionError } from './ReceptionError';
 import { updateSnapshot } from './state';
 import { pushSessionReset } from './pushSession';
-import { isRecord, warnInvalid } from './validation';
-import type { Identity, PushEnvironment } from './types';
+import { isRecord, notificationSmallIcon, warnInvalid } from './validation';
+import type { ConfigureOptions, Identity, PushEnvironment } from './types';
 
 async function call<T>(
   action: (module: NativeReception) => Promise<T>,
@@ -36,13 +36,15 @@ function conversationId(reception: unknown): string | null {
 }
 
 export const methods = {
-  async configure(options: { appId: string }): Promise<void> {
+  /** Android: `android.notificationSmallIcon` names the app's drawable for reply notifications. */
+  async configure(options: ConfigureOptions): Promise<void> {
     await call(async (module) => {
       if (!isRecord(options) || typeof options.appId !== 'string') {
         warnInvalid('appId');
         return;
       }
-      updateSnapshot(await module.configure(options.appId));
+      const icon = notificationSmallIcon(options.android);
+      updateSnapshot(await module.configure(options.appId, icon));
     });
   },
   async identify(identity: Identity): Promise<void> {

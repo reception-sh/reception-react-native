@@ -108,3 +108,18 @@ export function isPaywall(value: unknown): boolean {
       (Array.isArray(value.products) && value.products.every(isProduct)))
   );
 }
+
+/** The drawable name for Android's notification small icon, or null for the SDK default; invalid input warns. */
+export function notificationSmallIcon(android: unknown): string | null {
+  if (android === undefined) return null;
+  if (!isRecord(android)) {
+    warnInvalid('android options');
+    return null;
+  }
+  const name = android.notificationSmallIcon;
+  if (name === undefined) return null;
+  if (typeof name === 'string' && /^[a-z][a-z0-9_]{0,63}$/.test(name))
+    return name;
+  warnInvalid('android.notificationSmallIcon');
+  return null;
+}

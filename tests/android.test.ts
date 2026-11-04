@@ -19,9 +19,29 @@ afterEach(() => {
 
 test('Android uses the native module without the unsupported-platform warning', async () => {
   await Reception.configure({ appId: 'app_example' });
-  expect(mock.native.configure).toHaveBeenCalledWith('app_example');
+  expect(mock.native.configure).toHaveBeenCalledWith('app_example', null);
   expect(Reception.isConfigured).toBe(true);
   expect(console.warn).not.toHaveBeenCalled();
+});
+
+test('Android passes a valid notification small icon name and drops invalid ones', async () => {
+  await Reception.configure({
+    appId: 'app_example',
+    android: { notificationSmallIcon: 'ic_notification' },
+  });
+  expect(mock.native.configure).toHaveBeenLastCalledWith(
+    'app_example',
+    'ic_notification',
+  );
+  expect(console.warn).not.toHaveBeenCalled();
+  await Reception.configure({
+    appId: 'app_example',
+    android: { notificationSmallIcon: 'Icon-1' },
+  });
+  expect(mock.native.configure).toHaveBeenLastCalledWith('app_example', null);
+  expect(console.warn).toHaveBeenCalledWith(
+    '[Reception] Invalid android.notificationSmallIcon; ignored.',
+  );
 });
 
 test('Android forwards FCM tokens unchanged and refuses others', async () => {
