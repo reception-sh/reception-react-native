@@ -59,8 +59,9 @@ android {
 }
 
 dependencies {
-  // Reception Android SDK from Maven Central; it brings Compose, coroutines and its consumer R8 rules.
-  implementation 'sh.reception:reception:1.0.0'
+  // Reception Android SDK from Maven Central; it brings Compose, coroutines and its consumer R8 rules. `api` so the app
+  // compiles against it too: React Native Firebase hosts call Reception.handlePushMessage from their own service.
+  api 'sh.reception:reception:1.0.0'
   // ReactFontManager: appearance.fontFamily uses the fonts React Native knows.
   implementation 'com.facebook.react:react-android'
 

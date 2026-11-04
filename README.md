@@ -71,7 +71,7 @@ a tap; the helper only keeps the token current. Reception picks the app's one me
 
 - With React Native Firebase (`@react-native-firebase/messaging`), its service stays; call
   `Reception.handlePushMessage(this, message.data)` from a native subclass of it, first, and return when it returns
-  true.
+  true. The module exposes the SDK to the app's compile classpath, so the app declares no Reception dependency.
 - Otherwise, with expo-notifications linked on Android, the module declares Reception's subclass of its messaging
   service, so Reception's replies never reach expo-notifications' handlers and your other notifications and tokens
   are unaffected.
