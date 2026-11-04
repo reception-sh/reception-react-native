@@ -17,7 +17,7 @@ test('the main entry never loads the optional notifications dependency', async (
   expect(notifications).not.toHaveBeenCalled();
 });
 
-test.each(['android', 'web'])(
+test.each(['web', 'windows'])(
   '%s never requests a native module, throws, or changes default state',
   async (platform) => {
     jest.resetModules();

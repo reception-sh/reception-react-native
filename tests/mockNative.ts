@@ -56,6 +56,7 @@ export function mockNative() {
     setPushToken: jest.fn(async () => {}),
     handlePushNotification: jest.fn(async () => true),
     handleExpoNotification: jest.fn(async () => {}),
+    registerForPushIfAuthorized: jest.fn(async () => {}),
     setAppearance: jest.fn(async (value: string) => ({
       ...initial,
       appearance: JSON.parse(value) as Appearance,

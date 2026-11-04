@@ -41,10 +41,15 @@ export async function refreshReceptionPush(): Promise<void> {
   await refreshRegistration?.();
 }
 
-/** Start after configuring Reception. Never requests permission; returns cleanup. iOS only. */
+/**
+ * Start after configuring Reception. Never requests permission; returns cleanup. On iOS it registers the APNs token
+ * and routes Expo's notifications. On Android the SDK shows Reception's notifications and opens the chat on a tap, so
+ * this only keeps the FCM token current.
+ */
 export function startReceptionPush(): () => void {
-  if (Platform.OS !== 'ios' || !native) return () => {};
-  if (owners++ === 0) stop = start();
+  if ((Platform.OS !== 'ios' && Platform.OS !== 'android') || !native)
+    return () => {};
+  if (owners++ === 0) stop = Platform.OS === 'ios' ? start() : startAndroid();
   let active = true;
   return () => {
     if (!active) return;
@@ -132,6 +137,33 @@ function start(): () => void {
     token.remove();
     received.remove();
     tapped.remove();
+    reset();
+  };
+}
+
+function startAndroid(): () => void {
+  let active = true;
+  const reportFailure = () => {
+    if (active)
+      console.warn(
+        '[Reception] Push integration failed; registration retries on foreground.',
+      );
+  };
+  // The SDK reads the FCM token itself at configure and every foreground once notifications are allowed.
+  refreshRegistration = () =>
+    native?.registerForPushIfAuthorized?.().catch(reportFailure) ??
+    Promise.resolve();
+  const token = Notifications.addPushTokenListener((value) => {
+    if (typeof value.data === 'string')
+      void Reception.setPushToken(value.data).catch(reportFailure);
+  });
+  const reset = onPushSessionReset(() => {
+    void refreshReceptionPush();
+  });
+  return () => {
+    active = false;
+    refreshRegistration = undefined;
+    token.remove();
     reset();
   };
 }

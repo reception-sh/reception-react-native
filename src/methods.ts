@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import {
   native,
   warnUnavailable,
@@ -21,6 +22,17 @@ async function call<T>(
   } catch (error) {
     throw ReceptionError.from(error);
   }
+}
+
+/** APNs payloads carry `{ conversationId }`; FCM data carries the ID itself (Android). */
+function conversationId(reception: unknown): string | null {
+  if (Platform.OS === 'android' && typeof reception === 'string')
+    return reception || null;
+  return isRecord(reception) &&
+    typeof reception.conversationId === 'string' &&
+    reception.conversationId
+    ? reception.conversationId
+    : null;
 }
 
 export const methods = {
@@ -120,21 +132,27 @@ export const methods = {
       await module.track(event, options.opensChat ?? false);
     });
   },
+  /** iOS: the APNs device token as hex. Android: the FCM registration token; the environment does not apply. */
   async setPushToken(
     token: string,
     environment: PushEnvironment = 'automatic',
   ): Promise<void> {
     await call(async (module) => {
+      const android = Platform.OS === 'android';
       if (
         typeof token !== 'string' ||
-        !/^(?:[\da-f]{2})+$/i.test(token) ||
-        token.length > 512 ||
+        !(android
+          ? /^[\w:-]{1,4096}$/.test(token)
+          : /^(?:[\da-f]{2})+$/i.test(token) && token.length <= 512) ||
         !['automatic', 'sandbox', 'production'].includes(environment)
       ) {
-        warnInvalid('APNs token or environment');
+        warnInvalid(android ? 'FCM token' : 'APNs token or environment');
         return;
       }
-      await module.setPushToken(token.toLowerCase(), environment);
+      await module.setPushToken(
+        android ? token : token.toLowerCase(),
+        environment,
+      );
     });
   },
   async handlePushNotification(
@@ -152,18 +170,10 @@ export const methods = {
           warnInvalid('notification');
           return false;
         }
-        // Only this public routing field is consumed by Swift; unrelated provider payloads may not be serializable.
-        const reception = payload.reception;
-        if (
-          !isRecord(reception) ||
-          typeof reception.conversationId !== 'string' ||
-          !reception.conversationId
-        )
-          return false;
-        return module.handlePushNotification(
-          reception.conversationId,
-          options.openChat ?? true,
-        );
+        // Only this public routing field is consumed natively; unrelated provider payloads may not be serializable.
+        const id = conversationId(payload.reception);
+        if (!id) return false;
+        return module.handlePushNotification(id, options.openChat ?? true);
       })) ?? false
     );
   },

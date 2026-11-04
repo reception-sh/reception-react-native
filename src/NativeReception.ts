@@ -56,11 +56,14 @@ export interface NativeReception {
     conversationId: string,
     openChat: boolean,
   ): Promise<boolean>;
+  /** iOS only: Android's notifications and their taps belong to the SDK. */
   handleExpoNotification(
     id: string,
     conversationId: string,
     openChat: boolean,
   ): Promise<void>;
+  /** Android only: the SDK fetches the FCM token when notifications are allowed. */
+  registerForPushIfAuthorized?(): Promise<void>;
   setAppearance(value: string, revision: number): Promise<Snapshot>;
   setUpdatesAppBadge(value: boolean, revision: number): Promise<Snapshot>;
   setOpensWebLinksInApp(value: boolean, revision: number): Promise<Snapshot>;
@@ -92,7 +95,7 @@ export interface NativeReception {
 }
 
 export const native =
-  Platform.OS === 'ios'
+  Platform.OS === 'ios' || Platform.OS === 'android'
     ? requireOptionalNativeModule<NativeReception>('ReceptionReactNative')
     : null;
 let warned = false;
@@ -100,9 +103,9 @@ export function warnUnavailable(): void {
   if (warned || native) return;
   warned = true;
   console.warn(
-    Platform.OS === 'ios'
-      ? '[Reception] Native module unavailable. Install the package and rebuild your iOS app; Expo Go is unsupported.'
-      : '[Reception] Support chat is available on iOS only.',
+    Platform.OS === 'ios' || Platform.OS === 'android'
+      ? '[Reception] Native module unavailable. Install the package and rebuild your app; Expo Go is unsupported.'
+      : '[Reception] Support chat is available on iOS and Android only.',
   );
 }
 

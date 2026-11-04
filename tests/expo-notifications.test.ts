@@ -198,17 +198,41 @@ test('multiple owners share listeners and cleanup is idempotent', () => {
   expect(push.received.listeners.size).toBe(0);
 });
 
-test.each(['android', 'web'])(
-  '%s has no notification side effects',
-  async (platform) => {
-    await load(platform);
-    helper.startReceptionPush()();
-    await helper.refreshReceptionPush();
-    expect(helper.receptionNotificationBehavior(notification())).toBeNull();
-    expect(push.api.getPermissionsAsync).not.toHaveBeenCalled();
-    expect(push.received.add).not.toHaveBeenCalled();
-  },
-);
+test('Android only keeps the FCM token current; the SDK owns notifications and taps', async () => {
+  await load('android');
+  const stop = helper.startReceptionPush();
+  await flush();
+  expect(push.api.getPermissionsAsync).not.toHaveBeenCalled();
+  expect(push.received.add).not.toHaveBeenCalled();
+  expect(push.api.getLastNotificationResponseAsync).not.toHaveBeenCalled();
+  await helper.refreshReceptionPush();
+  expect(mock.native.registerForPushIfAuthorized).toHaveBeenCalledTimes(1);
+  push.token.emit({ type: 'android', data: 'fcm:Token_1-a' });
+  await flush();
+  expect(mock.native.setPushToken).toHaveBeenLastCalledWith(
+    'fcm:Token_1-a',
+    'automatic',
+  );
+  await Reception.logout();
+  await flush();
+  expect(mock.native.registerForPushIfAuthorized).toHaveBeenCalledTimes(2);
+  expect(helper.receptionNotificationBehavior(notification())).toBeNull();
+  stop();
+  await helper.refreshReceptionPush();
+  push.token.emit({ type: 'android', data: 'other' });
+  await flush();
+  expect(mock.native.registerForPushIfAuthorized).toHaveBeenCalledTimes(2);
+  expect(mock.native.setPushToken).toHaveBeenCalledTimes(1);
+});
+
+test.each(['web'])('%s has no notification side effects', async (platform) => {
+  await load(platform);
+  helper.startReceptionPush()();
+  await helper.refreshReceptionPush();
+  expect(helper.receptionNotificationBehavior(notification())).toBeNull();
+  expect(push.api.getPermissionsAsync).not.toHaveBeenCalled();
+  expect(push.received.add).not.toHaveBeenCalled();
+});
 
 test('permission failure and deletion errors do not prompt or re-register', async () => {
   push.api.getPermissionsAsync.mockRejectedValueOnce(
