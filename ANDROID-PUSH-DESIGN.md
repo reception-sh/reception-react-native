@@ -25,9 +25,11 @@ service of the same priority never receives anything.
 Revised 2026-11-04 (fix round 1). With expo-notifications (see the rule below) the module ships
 `ReceptionExpoMessagingService`, a subclass of `ExpoFirebaseMessagingService` (`android/src/expoNotifications`):
 
-- `onMessageReceived`: `Reception.handlePushMessage(applicationContext, data)` takes a Reception payload (data with a
-  non-empty `reception` field) and returns true; the SDK posts it, or not while the chat is open. Everything else goes
-  to `super`, so Expo handles it exactly as before.
+- `onMessageReceived`: `Reception.handlePushMessage(applicationContext, data, messageId)` takes a Reception payload
+  (data with a non-empty `reception` field) and returns true; the SDK posts it, or not while the chat is open. The
+  message ID is passed separately because Firebase removes `google.*` keys, `google.message_id` among them, from
+  `RemoteMessage.data`; without it the SDK cannot recognize a redelivered message and would show it twice.
+  Everything else goes to `super`, so Expo handles it exactly as before.
 - `onNewToken`: `super` (Expo's token flow and listeners unchanged), then the token is staged with
   `Reception.setPushToken` on the main thread when the SDK is configured. Before `configure` the SDK reads the token
   itself.
@@ -39,9 +41,9 @@ manifest and the module's never disagree:
 
 1. `@react-native-firebase/messaging` resolves: no Reception service at all, with or without expo-notifications. React
    Native Firebase's service (default priority 0, above Expo's -1) stays the one receiver; that host calls
-   `Reception.handlePushMessage` from a native subclass of it (README); the module depends on the SDK with `api`, so
-   that subclass compiles without the app declaring `sh.reception:reception`. A Reception service at priority 10 would take
-   every message and `onNewToken` from React Native Firebase.
+   `Reception.handlePushMessage` with `remoteMessage.messageId` from a native subclass of it (README); the module
+   depends on the SDK with `api`, so that subclass compiles without the app declaring `sh.reception:reception`. A
+   Reception service at priority 10 would take every message and `onNewToken` from React Native Firebase.
 2. Otherwise `expo-notifications` resolves and Expo autolinking links it on Android: the module's Gradle build compiles
    `ReceptionExpoMessagingService` against expo-notifications as autolinking links it (its Gradle project when built
    from source, otherwise its prebuilt publication, as in Expo 57) and uses `src/expoNotifications/AndroidManifest.xml`

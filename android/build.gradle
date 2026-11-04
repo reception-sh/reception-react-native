@@ -52,9 +52,14 @@ android {
         manifest.srcFile 'src/expoNotifications/AndroidManifest.xml'
       }
     }
+    test {
+      if (expoNotifications != null) java.srcDirs += 'src/testExpoNotifications/java'
+    }
   }
   testOptions {
     unitTests.returnDefaultValues = true
+    // Robolectric runs the SDK's notification code against its own resources.
+    unitTests.includeAndroidResources = true
   }
 }
 
@@ -69,10 +74,13 @@ dependencies {
     // Both come from the app at runtime: expo-notifications and the Firebase Messaging it brings.
     compileOnly expoNotifications
     compileOnly 'com.google.firebase:firebase-messaging:24.1.0'
+    testImplementation expoNotifications
+    testImplementation 'com.google.firebase:firebase-messaging:24.1.0'
   }
 
   testImplementation 'junit:junit:4.13.2'
   // The real org.json; Android's is a stub in JVM unit tests.
   testImplementation 'org.json:json:20231013'
   testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1'
+  testImplementation 'org.robolectric:robolectric:4.14.1'
 }

@@ -12,8 +12,9 @@ import sh.reception.Reception
  */
 class ReceptionExpoMessagingService : ExpoFirebaseMessagingService() {
   override fun onMessageReceived(remoteMessage: RemoteMessage) {
-    // True for a Reception reply: the SDK shows it (none while the chat is open) and opens the chat on a tap.
-    if (Reception.handlePushMessage(applicationContext, remoteMessage.data)) return
+    // True for a Reception reply: the SDK shows it (none while the chat is open) and opens the chat on a tap. Firebase
+    // keeps the message ID out of `data`; the SDK needs it to show a redelivered message once.
+    if (Reception.handlePushMessage(applicationContext, remoteMessage.data, remoteMessage.messageId)) return
     super.onMessageReceived(remoteMessage)
   }
 
