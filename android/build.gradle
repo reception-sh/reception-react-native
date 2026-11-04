@@ -5,31 +5,35 @@ plugins {
 
 def packageJson = new groovy.json.JsonSlurper().parse(file('../package.json'))
 // Which FCM messaging service receives Reception's replies, decided by messaging-service.js, the rule the config plugin
-// uses too. 'expo': ReceptionExpoMessagingService is compiled and declared, against expo-notifications as the app links
-// it: its Gradle project, or the prebuilt publication (Expo 57+). 'none' (React Native Firebase) and 'sdk' build neither.
-def expoNotifications = selectMessagingService() == 'expo' ? findExpoNotifications() : null
+// uses too, from Expo's resolved autolinking (the `expoGradle` extension its settings plugin registers), so an
+// excluded expo-notifications counts as absent. 'expo': ReceptionExpoMessagingService is compiled and declared, against
+// expo-notifications as autolinking links it: its Gradle project, or the prebuilt publication (Expo 57+). 'none'
+// (React Native Firebase) and 'sdk' build neither.
+def linkedExpoNotifications = findLinkedExpoNotifications()
+def expoNotifications =
+  selectMessagingService(linkedExpoNotifications != null) == 'expo' ? linkedExpoNotifications : null
 
-def selectMessagingService() {
-  def output = providers.exec {
-    workingDir rootDir
-    commandLine 'node', file('messaging-service.js').absolutePath, rootDir.absolutePath
-  }.standardOutput.asText.get()
-  return new groovy.json.JsonSlurper().parseText(output).service
+def findLinkedExpoNotifications() {
+  def expoGradle = gradle.extensions.findByName('expoGradle')
+  def linked = expoGradle?.config?.allProjects?.find { it.name == 'expo-notifications' }
+  if (linked?.usePublication) {
+    def publication = linked.publication
+    return "${publication.groupId}:${publication.artifactId}:${publication.version}"
+  }
+  // Built from source; also without Expo's settings plugin (React Native community autolinking).
+  return findProject(':expo-notifications')
 }
 
-def findExpoNotifications() {
-  def project = findProject(':expo-notifications')
-  if (project != null) return project
-  def resolved = providers.exec {
+def selectMessagingService(boolean expoNotificationsLinked) {
+  def projectRoot = gradle.extensions.findByName('expoGradle')?.projectRoot ?: rootDir.parentFile
+  def output = providers.exec {
     workingDir rootDir
-    commandLine 'node', '--print', "require.resolve('expo-notifications/package.json')"
-  }.standardOutput.asText.get().trim()
-  def config = new File(new File(resolved).parentFile, 'expo-module.config.json')
-  def publication = config.exists() ? new groovy.json.JsonSlurper().parse(config).android?.publication : null
-  if (publication == null) {
-    throw new GradleException('Reception: expo-notifications is installed but not linked; run npx expo prebuild.')
-  }
-  return "${publication.groupId}:${publication.artifactId}:${publication.version}"
+    commandLine 'node', file('messaging-service.js').absolutePath, projectRoot.absolutePath,
+      "${expoNotificationsLinked}"
+  }.standardOutput.asText.get()
+  def selection = new groovy.json.JsonSlurper().parseText(output)
+  if (selection.warning) logger.warn("Reception: ${selection.warning}")
+  return selection.service
 }
 
 group = 'sh.reception'

@@ -1,6 +1,7 @@
 const {
   AndroidConfig,
   IOSConfig,
+  WarningAggregator,
   withAndroidManifest,
   withFinalizedMod,
   withPodfileProperties,
@@ -29,7 +30,11 @@ const SERVICES = [
 
 function withReceptionMessagingService(config) {
   return withAndroidManifest(config, (config) => {
-    const { service } = selectMessagingService(config.modRequest.projectRoot);
+    const { service, warning } = selectMessagingService(
+      config.modRequest.projectRoot,
+    );
+    if (warning)
+      WarningAggregator.addWarningAndroid('react-native-reception', warning);
     const application = AndroidConfig.Manifest.getMainApplicationOrThrow(
       config.modResults,
     );

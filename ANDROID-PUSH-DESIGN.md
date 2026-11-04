@@ -41,16 +41,23 @@ manifest and the module's never disagree:
    Native Firebase's service (default priority 0, above Expo's -1) stays the one receiver; that host calls
    `Reception.handlePushMessage` from a native subclass of it (README). A Reception service at priority 10 would take
    every message and `onNewToken` from React Native Firebase.
-2. Otherwise `expo-notifications` resolves: the module's Gradle build compiles `ReceptionExpoMessagingService` against
-   expo-notifications as the app links it (its Gradle project when built from source, otherwise its prebuilt
-   publication, as in Expo 57) and uses `src/expoNotifications/AndroidManifest.xml` as the module's manifest. That
-   manifest declares the service with the `com.google.firebase.MESSAGING_EVENT` filter at priority 10, above Expo's -1,
-   so the class and its declaration exist together or not at all, with or without prebuild. (Declared in the app's own
-   manifest, the entry fails release lint: the app's compile classpath does not see Firebase's service behind Expo's.)
-   If autolinking linked it neither way, the build fails with a message.
+2. Otherwise `expo-notifications` resolves and Expo autolinking links it on Android: the module's Gradle build compiles
+   `ReceptionExpoMessagingService` against expo-notifications as autolinking links it (its Gradle project when built
+   from source, otherwise its prebuilt publication, as in Expo 57) and uses `src/expoNotifications/AndroidManifest.xml`
+   as the module's manifest. That manifest declares the service with the `com.google.firebase.MESSAGING_EVENT` filter
+   at priority 10, above Expo's -1, so the class and its declaration exist together or not at all, with or without
+   prebuild. (Declared in the app's own manifest, the entry fails release lint: the app's compile classpath does not
+   see Firebase's service behind Expo's.)
 3. Otherwise: the config plugin declares the SDK's own `sh.reception.ReceptionMessagingService` in the app manifest
    (the app then needs `com.google.firebase:firebase-messaging`). Hosts without prebuild add that entry themselves
-   (README).
+   (README). This includes an expo-notifications that resolves in Node but that autolinking does not link (for
+   example `expo.autolinking.exclude` in package.json); prebuild and Gradle then warn ("expo-notifications is installed
+   but Expo autolinking does not link it"), since the Expo subclass would have no superclass at runtime.
+
+"Links" is Expo's resolved autolinking, never a package's own `expo-module.config.json`: Gradle reads the `expoGradle`
+extension that Expo's settings plugin registers (in Expo 54 and 57 alike; the linked projects, each with its
+publication if it uses one), and the config plugin runs the same Android `expo-modules-autolinking resolve` that the
+settings plugin runs. Without Expo's settings plugin, Gradle counts a linked `:expo-notifications` project.
 
 The plugin first removes Reception entries of earlier runs, so a prebuild without `--clean` never keeps a service for
 another setup. Adding or removing either package needs a new prebuild, as any native dependency does.
@@ -87,5 +94,5 @@ killed process (started by Firebase's own receiver), and a cold-start tap. Comma
 - `am force-stop` (Settings → Force stop) blocks every FCM delivery until the app is opened again; Android's rule.
 - An app that declares its own messaging service above priority 10 receives everything, Reception's replies included;
   it then calls `Reception.handlePushMessage` itself.
-- In a monorepo where Node resolves expo-notifications from the app but autolinking does not link it, the build stops
-  with "expo-notifications is installed but not linked".
+- Custom autolinking options passed in `settings.gradle` (`useExpoModules` search paths or excludes) reach Gradle's
+  decision but not the config plugin's, which reads package.json; set excludes in package.json so both agree.

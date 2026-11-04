@@ -1,5 +1,6 @@
 const {
   IOSConfig,
+  WarningAggregator,
   withBaseMod,
   evalModsAsync,
 } = require('expo/config-plugins');
@@ -148,21 +149,43 @@ test('raises generated native targets without build-properties', async () => {
   });
 });
 
-function projectWith(packages) {
-  const { mkdtempSync, mkdirSync, writeFileSync } = jest.requireActual('fs');
-  const { join } = require('node:path');
+// A project whose node_modules hold these packages. With expo-notifications, it and expo are the real ones, so Expo
+// autolinking resolves the project as it would an app; `excluded` goes to expo.autolinking.exclude.
+function projectWith(packages, excluded = []) {
+  const { mkdtempSync, mkdirSync, symlinkSync, writeFileSync } =
+    jest.requireActual('fs');
+  const { dirname, join } = require('node:path');
   const projectRoot = mkdtempSync(
     join(require('node:os').tmpdir(), 'reception-plugin-'),
   );
-  for (const name of packages) {
-    mkdirSync(join(projectRoot, 'node_modules', name), { recursive: true });
-    writeFileSync(join(projectRoot, 'node_modules', name, 'index.js'), '');
+  const modules = join(projectRoot, 'node_modules');
+  const real = packages.includes('expo-notifications')
+    ? ['expo', 'expo-notifications']
+    : [];
+  for (const name of packages.filter((name) => !real.includes(name))) {
+    mkdirSync(join(modules, name), { recursive: true });
+    writeFileSync(join(modules, name, 'index.js'), '');
   }
+  for (const name of real) {
+    mkdirSync(modules, { recursive: true });
+    symlinkSync(
+      dirname(require.resolve(`${name}/package.json`)),
+      join(modules, name),
+    );
+  }
+  writeFileSync(
+    join(projectRoot, 'package.json'),
+    JSON.stringify({
+      name: 'test',
+      dependencies: Object.fromEntries(real.map((name) => [name, '*'])),
+      expo: { autolinking: { exclude: excluded } },
+    }),
+  );
   return projectRoot;
 }
 
-async function messagingServices(packages, previous = []) {
-  const projectRoot = projectWith(packages);
+async function messagingServices(packages, previous = [], excluded = []) {
+  const projectRoot = projectWith(packages, excluded);
   const files = {
     manifest: {
       manifest: {
@@ -237,30 +260,50 @@ const EXPO_SUBCLASS = 'sh.reception.reactnative.ReceptionExpoMessagingService';
 const SDK_SERVICE = 'sh.reception.ReceptionMessagingService';
 const FIREBASE = '@react-native-firebase/messaging';
 
+const NOT_LINKED = expect.stringContaining(
+  'expo-notifications is installed but Expo autolinking does not link it',
+);
+
 test.each([
-  [[FIREBASE, 'expo-notifications'], 'none'],
-  [[FIREBASE], 'none'],
-  [['expo-notifications'], 'expo'],
-  [[], 'sdk'],
+  [[FIREBASE, 'expo-notifications'], [], { service: 'none' }],
+  [[FIREBASE], [], { service: 'none' }],
+  [['expo-notifications'], [], { service: 'expo' }],
+  [
+    ['expo-notifications'],
+    ['expo-notifications'],
+    { service: 'sdk', warning: NOT_LINKED },
+  ],
+  [[], [], { service: 'sdk' }],
 ])(
-  'the plugin and Gradle make one choice with %j: %s',
-  async (packages, service) => {
-    const declared = await messagingServices(packages, [
-      EXPO_SUBCLASS,
-      SDK_SERVICE,
-    ]);
-    expect(declared.slice(1).map(([name]) => name)).toEqual(
-      service === 'sdk' ? [SDK_SERVICE] : [],
+  'the plugin and Gradle make one choice with %j, excluding %j',
+  async (packages, excluded, selection) => {
+    const warn = jest
+      .spyOn(WarningAggregator, 'addWarningAndroid')
+      .mockImplementation(() => {});
+    const declared = await messagingServices(
+      packages,
+      [EXPO_SUBCLASS, SDK_SERVICE],
+      excluded,
     );
-    // build.gradle runs the same rule on the command line; it compiles the Expo subclass only for 'expo'.
+    expect(declared.slice(1).map(([name]) => name)).toEqual(
+      selection.service === 'sdk' ? [SDK_SERVICE] : [],
+    );
+    expect(warn.mock.calls).toEqual(
+      selection.warning ? [['react-native-reception', NOT_LINKED]] : [],
+    );
+    // build.gradle runs the same rule with its own autolinking result and compiles the Expo subclass only for 'expo'.
+    const linked =
+      packages.includes('expo-notifications') &&
+      !excluded.includes('expo-notifications');
     const output = require('node:child_process').execFileSync(
       process.execPath,
       [
         require('node:path').join(__dirname, '../android/messaging-service.js'),
-        projectWith(packages),
+        projectWith(packages, excluded),
+        String(linked),
       ],
       { encoding: 'utf8' },
     );
-    expect(JSON.parse(output)).toEqual({ service });
+    expect(JSON.parse(output)).toEqual(selection);
   },
 );
