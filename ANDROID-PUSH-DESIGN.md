@@ -22,8 +22,8 @@ service of the same priority never receives anything.
 
 ## The decision: one service, Expo's subclass
 
-Revised 2026-11-04 (fix round 1). The module ships `ReceptionExpoMessagingService`, a subclass of
-`ExpoFirebaseMessagingService` (`android/src/expoNotifications`):
+Revised 2026-11-04 (fix round 1). With expo-notifications (see the rule below) the module ships
+`ReceptionExpoMessagingService`, a subclass of `ExpoFirebaseMessagingService` (`android/src/expoNotifications`):
 
 - `onMessageReceived`: `Reception.handlePushMessage(applicationContext, data)` takes a Reception payload (data with a
   non-empty `reception` field) and returns true; the SDK posts it, or not while the chat is open. Everything else goes
@@ -32,19 +32,28 @@ Revised 2026-11-04 (fix round 1). The module ships `ReceptionExpoMessagingServic
   `Reception.setPushToken` on the main thread when the SDK is configured. Before `configure` the SDK reads the token
   itself.
 
-When Node resolves `expo-notifications` from the project, the module's Gradle build compiles this class against
-expo-notifications as the app links it (its Gradle project when built from source, otherwise its prebuilt publication,
-as in Expo 57) and uses `src/expoNotifications/AndroidManifest.xml` as the module's manifest. That manifest declares the
-service with the `com.google.firebase.MESSAGING_EVENT` filter at priority 10, above Expo's -1, so the class and its
-declaration exist together or not at all, with or without prebuild. (Declared in the app's own manifest, the entry fails
-release lint: the app's compile classpath does not see Firebase's service behind Expo's.) If Node resolves
-expo-notifications but autolinking linked it neither way, the build fails with a message.
+## Which service: one rule
 
-Without expo-notifications the config plugin declares the SDK's own `sh.reception.ReceptionMessagingService` in the
-app manifest (the app then needs `com.google.firebase:firebase-messaging`), except with React Native Firebase
-(`@react-native-firebase/messaging` resolves), whose own service stays; that host calls `Reception.handlePushMessage`
-from a native subclass of it. The plugin first removes Reception entries of earlier runs, so a prebuild without
-`--clean` never keeps a service for the other setup. Hosts without prebuild add that entry themselves (README).
+`android/messaging-service.js` decides; the config plugin requires it and `android/build.gradle` runs it, so the app's
+manifest and the module's never disagree:
+
+1. `@react-native-firebase/messaging` resolves: no Reception service at all, with or without expo-notifications. React
+   Native Firebase's service (default priority 0, above Expo's -1) stays the one receiver; that host calls
+   `Reception.handlePushMessage` from a native subclass of it (README). A Reception service at priority 10 would take
+   every message and `onNewToken` from React Native Firebase.
+2. Otherwise `expo-notifications` resolves: the module's Gradle build compiles `ReceptionExpoMessagingService` against
+   expo-notifications as the app links it (its Gradle project when built from source, otherwise its prebuilt
+   publication, as in Expo 57) and uses `src/expoNotifications/AndroidManifest.xml` as the module's manifest. That
+   manifest declares the service with the `com.google.firebase.MESSAGING_EVENT` filter at priority 10, above Expo's -1,
+   so the class and its declaration exist together or not at all, with or without prebuild. (Declared in the app's own
+   manifest, the entry fails release lint: the app's compile classpath does not see Firebase's service behind Expo's.)
+   If autolinking linked it neither way, the build fails with a message.
+3. Otherwise: the config plugin declares the SDK's own `sh.reception.ReceptionMessagingService` in the app manifest
+   (the app then needs `com.google.firebase:firebase-messaging`). Hosts without prebuild add that entry themselves
+   (README).
+
+The plugin first removes Reception entries of earlier runs, so a prebuild without `--clean` never keeps a service for
+another setup. Adding or removing either package needs a new prebuild, as any native dependency does.
 
 Why this over the earlier receiver (a `c2dm.intent.RECEIVE` receiver at priority 100 that aborted the broadcast):
 

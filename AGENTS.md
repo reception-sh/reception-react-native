@@ -81,7 +81,8 @@ then runs again once the chat closes.
 
 The optional Expo push entry owns routing on iOS; its presentation function never routes. On
 Android the SDK owns receipt, presentation and taps through the app's one messaging service
-(`ReceptionExpoMessagingService` from the module's manifest with expo-notifications, otherwise the SDK's
+chosen by `android/messaging-service.js` for both Gradle and the plugin (React Native Firebase's own; else
+`ReceptionExpoMessagingService` from the module's manifest with expo-notifications; else the SDK's
 `ReceptionMessagingService` from the plugin); the entry
 only keeps the FCM token current.
 Keep notification deduplication in native process state so JS reloads cannot replay

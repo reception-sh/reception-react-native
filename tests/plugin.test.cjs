@@ -148,7 +148,7 @@ test('raises generated native targets without build-properties', async () => {
   });
 });
 
-async function messagingServices(packages, previous = []) {
+function projectWith(packages) {
   const { mkdtempSync, mkdirSync, writeFileSync } = jest.requireActual('fs');
   const { join } = require('node:path');
   const projectRoot = mkdtempSync(
@@ -158,6 +158,11 @@ async function messagingServices(packages, previous = []) {
     mkdirSync(join(projectRoot, 'node_modules', name), { recursive: true });
     writeFileSync(join(projectRoot, 'node_modules', name, 'index.js'), '');
   }
+  return projectRoot;
+}
+
+async function messagingServices(packages, previous = []) {
+  const projectRoot = projectWith(packages);
   const files = {
     manifest: {
       manifest: {
@@ -228,8 +233,34 @@ test('replaces the entry an earlier prebuild left for the other setup', async ()
   ]);
 });
 
-test("leaves React Native Firebase's service alone", async () => {
-  expect(await messagingServices(['@react-native-firebase/messaging'])).toEqual(
-    [['com.example.Other', undefined, undefined]],
-  );
-});
+const EXPO_SUBCLASS = 'sh.reception.reactnative.ReceptionExpoMessagingService';
+const SDK_SERVICE = 'sh.reception.ReceptionMessagingService';
+const FIREBASE = '@react-native-firebase/messaging';
+
+test.each([
+  [[FIREBASE, 'expo-notifications'], 'none'],
+  [[FIREBASE], 'none'],
+  [['expo-notifications'], 'expo'],
+  [[], 'sdk'],
+])(
+  'the plugin and Gradle make one choice with %j: %s',
+  async (packages, service) => {
+    const declared = await messagingServices(packages, [
+      EXPO_SUBCLASS,
+      SDK_SERVICE,
+    ]);
+    expect(declared.slice(1).map(([name]) => name)).toEqual(
+      service === 'sdk' ? [SDK_SERVICE] : [],
+    );
+    // build.gradle runs the same rule on the command line; it compiles the Expo subclass only for 'expo'.
+    const output = require('node:child_process').execFileSync(
+      process.execPath,
+      [
+        require('node:path').join(__dirname, '../android/messaging-service.js'),
+        projectWith(packages),
+      ],
+      { encoding: 'utf8' },
+    );
+    expect(JSON.parse(output)).toEqual({ service });
+  },
+);

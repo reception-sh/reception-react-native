@@ -11,6 +11,7 @@
     "src",
     "ios",
     "android/build.gradle",
+    "android/messaging-service.js",
     "android/src/main",
     "android/src/expoNotifications",
     "android/src/debug",

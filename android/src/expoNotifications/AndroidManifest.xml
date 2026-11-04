@@ -1,4 +1,4 @@
-<!-- Used instead of src/main's manifest when the app links expo-notifications (see build.gradle): above Expo's own
+<!-- Used instead of src/main's manifest when messaging-service.js selects 'expo' (see build.gradle): above Expo's own
      service (priority -1), this one receives every FCM message and hands Reception's replies to the SDK, the rest to
      Expo. See ANDROID-PUSH-DESIGN.md. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">

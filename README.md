@@ -67,12 +67,15 @@ receipts and taps, including cold starts. It never requests permission.
 On Android, add your Firebase project's `google-services.json` with expo-notifications'
 `android.googleServicesFile` and upload the Firebase service account in the dashboard's push
 settings. The Reception SDK reads the FCM token itself, shows replies and opens the chat from
-a tap; the helper only keeps the token current. With expo-notifications the module declares
-Reception's subclass of its messaging service, so Reception's replies never reach
-expo-notifications' handlers and your other notifications and tokens are unaffected. Without
-expo-notifications the plugin declares the SDK's `ReceptionMessagingService`; add
-`com.google.firebase:firebase-messaging` to the app then. Projects without prebuild add it to
-`AndroidManifest.xml` themselves:
+a tap; the helper only keeps the token current. Reception picks the app's one messaging service:
+
+- With React Native Firebase (`@react-native-firebase/messaging`), its service stays; call
+  `Reception.handlePushMessage(this, message.data)` from a native subclass of it, first, and return when it returns
+  true.
+- Otherwise, with expo-notifications, the module declares Reception's subclass of its messaging service, so Reception's
+  replies never reach expo-notifications' handlers and your other notifications and tokens are unaffected.
+- Otherwise the plugin declares the SDK's `ReceptionMessagingService`; add `com.google.firebase:firebase-messaging` to
+  the app then. Projects without prebuild add it to `AndroidManifest.xml` themselves:
 
 ```xml
 <service android:name="sh.reception.ReceptionMessagingService" android:exported="false">
@@ -82,8 +85,6 @@ expo-notifications the plugin declares the SDK's `ReceptionMessagingService`; ad
 </service>
 ```
 
-With React Native Firebase, call `Reception.handlePushMessage(this, message.data)` from a native
-subclass of its messaging service instead.
 After your app’s permission request, call `await refreshReceptionPush()` from the
 same optional entry to register immediately, including for provisional permission.
 Compose

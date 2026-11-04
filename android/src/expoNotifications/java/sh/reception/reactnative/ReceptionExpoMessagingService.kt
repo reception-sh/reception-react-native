@@ -6,9 +6,9 @@ import sh.reception.Reception
 
 /**
  * expo-notifications' messaging service with Reception's replies taken out first (see ANDROID-PUSH-DESIGN.md). The
- * config plugin declares it above Expo's own service when the app has expo-notifications, so Firebase's pipeline
- * (message-id dedupe, delivery acknowledgment) runs once and exactly one side presents each message. Compiled only when
- * the app links expo-notifications.
+ * module's manifest declares it above Expo's own service, so Firebase's pipeline (message-id dedupe, delivery
+ * acknowledgment) runs once and exactly one side presents each message. Compiled and declared only when
+ * messaging-service.js selects it: expo-notifications without React Native Firebase.
  */
 class ReceptionExpoMessagingService : ExpoFirebaseMessagingService() {
   override fun onMessageReceived(remoteMessage: RemoteMessage) {

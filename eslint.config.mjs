@@ -17,6 +17,7 @@ export default tseslint.config(
     files: [
       '*.js',
       '*.cjs',
+      'android/*.js',
       'tests/*.cjs',
       'example/*.js',
       'example/plugins/*.js',

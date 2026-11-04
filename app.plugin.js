@@ -8,6 +8,7 @@ const {
 } = require('expo/config-plugins');
 const { readFile } = require('node:fs/promises');
 const { join } = require('node:path');
+const { selectMessagingService } = require('./android/messaging-service');
 
 function requireIOS17(target) {
   if (!(Number.parseFloat(String(target).replaceAll('"', '')) >= 17)) {
@@ -17,18 +18,8 @@ function requireIOS17(target) {
   }
 }
 
-function resolves(name, projectRoot) {
-  try {
-    require.resolve(name, { paths: [projectRoot] });
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-// The one FCM messaging service that receives Reception's replies (see ANDROID-PUSH-DESIGN.md). With
-// expo-notifications the module's own manifest declares Reception's subclass of Expo's service; React Native Firebase
-// brings its own service, whose host calls Reception.handlePushMessage (see the README). Otherwise the SDK's.
+// The SDK's messaging service, declared in the app when messaging-service.js selects it. With expo-notifications the
+// module's own manifest declares Reception's subclass of Expo's service; React Native Firebase keeps its own service.
 const SDK_SERVICE = 'sh.reception.ReceptionMessagingService';
 // Prebuild without --clean keeps entries of earlier runs, which may name a class that is no longer built.
 const SERVICES = [
@@ -36,27 +27,18 @@ const SERVICES = [
   SDK_SERVICE,
 ];
 
-function messagingService(projectRoot) {
-  if (
-    resolves('expo-notifications', projectRoot) ||
-    resolves('@react-native-firebase/messaging', projectRoot)
-  )
-    return null;
-  return SDK_SERVICE;
-}
-
 function withReceptionMessagingService(config) {
   return withAndroidManifest(config, (config) => {
-    const name = messagingService(config.modRequest.projectRoot);
+    const { service } = selectMessagingService(config.modRequest.projectRoot);
     const application = AndroidConfig.Manifest.getMainApplicationOrThrow(
       config.modResults,
     );
     application.service = (application.service ?? []).filter(
-      (service) => !SERVICES.includes(service.$['android:name']),
+      (entry) => !SERVICES.includes(entry.$['android:name']),
     );
-    if (!name) return config;
+    if (service !== 'sdk') return config;
     application.service.push({
-      $: { 'android:name': name, 'android:exported': 'false' },
+      $: { 'android:name': SDK_SERVICE, 'android:exported': 'false' },
       'intent-filter': [
         {
           $: { 'android:priority': '10' },

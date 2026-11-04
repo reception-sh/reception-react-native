@@ -4,19 +4,26 @@ plugins {
 }
 
 def packageJson = new groovy.json.JsonSlurper().parse(file('../package.json'))
-// ReceptionExpoMessagingService takes Reception's replies out of expo-notifications' delivery. When Node resolves
-// expo-notifications from the project (the config plugin's condition too), it is compiled and declared, against
-// expo-notifications as the app links it: its Gradle project, or the prebuilt publication (Expo 57+).
-def expoNotifications = findExpoNotifications()
+// Which FCM messaging service receives Reception's replies, decided by messaging-service.js, the rule the config plugin
+// uses too. 'expo': ReceptionExpoMessagingService is compiled and declared, against expo-notifications as the app links
+// it: its Gradle project, or the prebuilt publication (Expo 57+). 'none' (React Native Firebase) and 'sdk' build neither.
+def expoNotifications = selectMessagingService() == 'expo' ? findExpoNotifications() : null
+
+def selectMessagingService() {
+  def output = providers.exec {
+    workingDir rootDir
+    commandLine 'node', file('messaging-service.js').absolutePath, rootDir.absolutePath
+  }.standardOutput.asText.get()
+  return new groovy.json.JsonSlurper().parseText(output).service
+}
 
 def findExpoNotifications() {
-  def resolved = providers.exec {
-    workingDir rootDir
-    commandLine 'node', '--print', "try { require.resolve('expo-notifications/package.json') } catch { '' }"
-  }.standardOutput.asText.get().trim()
-  if (resolved.isEmpty()) return null
   def project = findProject(':expo-notifications')
   if (project != null) return project
+  def resolved = providers.exec {
+    workingDir rootDir
+    commandLine 'node', '--print', "require.resolve('expo-notifications/package.json')"
+  }.standardOutput.asText.get().trim()
   def config = new File(new File(resolved).parentFile, 'expo-module.config.json')
   def publication = config.exists() ? new groovy.json.JsonSlurper().parse(config).android?.publication : null
   if (publication == null) {
