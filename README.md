@@ -67,8 +67,23 @@ receipts and taps, including cold starts. It never requests permission.
 On Android, add your Firebase project's `google-services.json` with expo-notifications'
 `android.googleServicesFile` and upload the Firebase service account in the dashboard's push
 settings. The Reception SDK reads the FCM token itself, shows replies and opens the chat from
-a tap; the helper only keeps the token current. Reception's replies never reach
-expo-notifications' handlers, and your other notifications are unaffected.
+a tap; the helper only keeps the token current. The plugin declares Reception's subclass of
+expo-notifications' messaging service, so Reception's replies never reach expo-notifications'
+handlers and your other notifications and tokens are unaffected. Without expo-notifications it
+declares the SDK's `ReceptionMessagingService`; add `com.google.firebase:firebase-messaging` to
+the app then. With React Native Firebase, call `Reception.handlePushMessage(this, message.data)`
+from a native subclass of its messaging service. Projects without prebuild add the service to
+`AndroidManifest.xml` themselves (`sh.reception.ReceptionMessagingService` without
+expo-notifications):
+
+```xml
+<service android:name="sh.reception.reactnative.ReceptionExpoMessagingService" android:exported="false">
+  <intent-filter android:priority="10">
+    <action android:name="com.google.firebase.MESSAGING_EVENT" />
+  </intent-filter>
+</service>
+```
+
 After your app’s permission request, call `await refreshReceptionPush()` from the
 same optional entry to register immediately, including for provisional permission.
 Compose

@@ -80,8 +80,9 @@ React Native pauses JS timers while the SDK's chat activity is on top; a check t
 then runs again once the chat closes.
 
 The optional Expo push entry owns routing on iOS; its presentation function never routes. On
-Android the SDK owns receipt, presentation and taps (`ReceptionPushReceiver`); the entry only
-keeps the FCM token current.
+Android the SDK owns receipt, presentation and taps through the app's one messaging service (the
+plugin declares `ReceptionExpoMessagingService` or the SDK's `ReceptionMessagingService`); the entry
+only keeps the FCM token current.
 Keep notification deduplication in native process state so JS reloads cannot replay
 Expo's retained tap. Never clear Expo's shared last-response storage: another router
 may own a newer notification. Registration never requests permission.

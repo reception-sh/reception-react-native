@@ -12,6 +12,7 @@
     "ios",
     "android/build.gradle",
     "android/src/main",
+    "android/src/expoNotifications",
     "android/src/debug",
     "android/src/release",
     "vendor",

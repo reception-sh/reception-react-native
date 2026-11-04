@@ -1,5 +1,7 @@
 const {
+  AndroidConfig,
   IOSConfig,
+  withAndroidManifest,
   withFinalizedMod,
   withPodfileProperties,
   withXcodeProject,
@@ -15,7 +17,57 @@ function requireIOS17(target) {
   }
 }
 
+function resolves(name, projectRoot) {
+  try {
+    require.resolve(name, { paths: [projectRoot] });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// The one FCM messaging service that receives Reception's replies (see ANDROID-PUSH-DESIGN.md). With
+// expo-notifications it is Expo's service with Reception's replies taken out first, declared above Expo's own (-1).
+// React Native Firebase brings its own service, whose host calls Reception.handlePushMessage (see the README).
+const SERVICES = [
+  'sh.reception.reactnative.ReceptionExpoMessagingService',
+  'sh.reception.ReceptionMessagingService',
+];
+
+function messagingService(projectRoot) {
+  if (resolves('expo-notifications', projectRoot)) return SERVICES[0];
+  if (resolves('@react-native-firebase/messaging', projectRoot)) return null;
+  return SERVICES[1];
+}
+
+function withReceptionMessagingService(config) {
+  return withAndroidManifest(config, (config) => {
+    const name = messagingService(config.modRequest.projectRoot);
+    const application = AndroidConfig.Manifest.getMainApplicationOrThrow(
+      config.modResults,
+    );
+    // Prebuild without --clean keeps the previous run's entry, which may name a class no longer built.
+    application.service = (application.service ?? []).filter(
+      (service) => !SERVICES.includes(service.$['android:name']),
+    );
+    if (!name) return config;
+    application.service.push({
+      $: { 'android:name': name, 'android:exported': 'false' },
+      'intent-filter': [
+        {
+          $: { 'android:priority': '10' },
+          action: [
+            { $: { 'android:name': 'com.google.firebase.MESSAGING_EVENT' } },
+          ],
+        },
+      ],
+    });
+    return config;
+  });
+}
+
 module.exports = function withReception(config) {
+  config = withReceptionMessagingService(config);
   for (const plugin of config.plugins ?? []) {
     if (
       !Array.isArray(plugin) ||

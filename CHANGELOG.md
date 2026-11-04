@@ -3,7 +3,7 @@
 ## 1.6.0 — unreleased
 
 - Android: the same API now runs the native Reception Android SDK (`sh.reception:reception` 1.0.0 from Maven Central, Android 7+), with the chat sheet, `ReceptionChatView`, appearance (light/dark color pairs, drawable resources for images, React Native fonts), language, paywalls with `paywallAvailability`, screens, link cards, events, unread and chat state. No Gradle or manifest edits. The Android warning is gone.
-- Android push: with your `google-services.json` and the Firebase service account uploaded in the dashboard, the SDK reads the FCM token, shows replies (none while the chat is open) and opens the chat from a tap, including cold starts. Reception's replies are taken before expo-notifications or another messaging service sees them, so they never appear twice; your other notifications are unaffected. `startReceptionPush()` only keeps the token current on Android. `setPushToken` takes the FCM token there and `handlePushNotification` also accepts `{ reception: conversationId }`.
+- Android push: with your `google-services.json` and the Firebase service account uploaded in the dashboard, the SDK reads the FCM token, shows replies (none while the chat is open) and opens the chat from a tap, including cold starts. The config plugin declares Reception's subclass of expo-notifications' messaging service, which hands Reception's replies to the SDK and everything else to Expo, so they never appear twice and your other notifications and tokens are unaffected; without expo-notifications it declares the SDK's own service. `startReceptionPush()` only keeps the token current on Android. `setPushToken` takes the FCM token there and `handlePushNotification` also accepts `{ reception: conversationId }`.
 
 ## 1.5.0 — 2026-10-31
 

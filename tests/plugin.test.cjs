@@ -147,3 +147,91 @@ test('raises generated native targets without build-properties', async () => {
     app: '17.0',
   });
 });
+
+async function messagingServices(packages, previous = []) {
+  const { mkdtempSync, mkdirSync, writeFileSync } = jest.requireActual('fs');
+  const { join } = require('node:path');
+  const projectRoot = mkdtempSync(
+    join(require('node:os').tmpdir(), 'reception-plugin-'),
+  );
+  for (const name of packages) {
+    mkdirSync(join(projectRoot, 'node_modules', name), { recursive: true });
+    writeFileSync(join(projectRoot, 'node_modules', name, 'index.js'), '');
+  }
+  const files = {
+    manifest: {
+      manifest: {
+        application: [
+          {
+            $: { 'android:name': '.MainApplication' },
+            service: [
+              { $: { 'android:name': 'com.example.Other' } },
+              ...previous.map((name) => ({ $: { 'android:name': name } })),
+            ],
+          },
+        ],
+      },
+    },
+  };
+  let config = withReception({ name: 'Test', slug: 'test' });
+  config = withBaseMod(config, {
+    platform: 'android',
+    mod: 'manifest',
+    isProvider: true,
+    action: async (config) => {
+      const result = await config.modRequest.nextMod({
+        ...config,
+        modResults: files.manifest,
+      });
+      files.manifest = result.modResults;
+      return result;
+    },
+  });
+  await evalModsAsync(config, { projectRoot, platforms: ['android'] });
+  return files.manifest.manifest.application[0].service.map((service) => [
+    service.$['android:name'],
+    service['intent-filter']?.[0].$['android:priority'],
+    service['intent-filter']?.[0].action[0].$['android:name'],
+  ]);
+}
+
+test('declares the Expo service with Reception replies above expo-notifications', async () => {
+  expect(await messagingServices(['expo-notifications'])).toEqual([
+    ['com.example.Other', undefined, undefined],
+    [
+      'sh.reception.reactnative.ReceptionExpoMessagingService',
+      '10',
+      'com.google.firebase.MESSAGING_EVENT',
+    ],
+  ]);
+});
+
+test("declares the SDK's service without expo-notifications", async () => {
+  expect((await messagingServices([]))[1]).toEqual([
+    'sh.reception.ReceptionMessagingService',
+    '10',
+    'com.google.firebase.MESSAGING_EVENT',
+  ]);
+});
+
+test('replaces the entry an earlier prebuild left for the other setup', async () => {
+  expect(
+    await messagingServices(
+      [],
+      ['sh.reception.reactnative.ReceptionExpoMessagingService'],
+    ),
+  ).toEqual([
+    ['com.example.Other', undefined, undefined],
+    [
+      'sh.reception.ReceptionMessagingService',
+      '10',
+      'com.google.firebase.MESSAGING_EVENT',
+    ],
+  ]);
+});
+
+test("leaves React Native Firebase's service alone", async () => {
+  expect(await messagingServices(['@react-native-firebase/messaging'])).toEqual(
+    [['com.example.Other', undefined, undefined]],
+  );
+});

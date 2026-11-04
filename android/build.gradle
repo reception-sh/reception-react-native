@@ -4,6 +4,26 @@ plugins {
 }
 
 def packageJson = new groovy.json.JsonSlurper().parse(file('../package.json'))
+// ReceptionExpoMessagingService takes Reception's replies out of expo-notifications' delivery. The config plugin
+// declares it when Node resolves expo-notifications from the project, so it is compiled under the same condition,
+// against expo-notifications as the app links it: its Gradle project, or the prebuilt publication (Expo 57+).
+def expoNotifications = findExpoNotifications()
+
+def findExpoNotifications() {
+  def resolved = providers.exec {
+    workingDir rootDir
+    commandLine 'node', '--print', "try { require.resolve('expo-notifications/package.json') } catch { '' }"
+  }.standardOutput.asText.get().trim()
+  if (resolved.isEmpty()) return null
+  def project = findProject(':expo-notifications')
+  if (project != null) return project
+  def config = new File(new File(resolved).parentFile, 'expo-module.config.json')
+  def publication = config.exists() ? new groovy.json.JsonSlurper().parse(config).android?.publication : null
+  if (publication == null) {
+    throw new GradleException('Reception: expo-notifications is installed but not linked; run npx expo prebuild.')
+  }
+  return "${publication.groupId}:${publication.artifactId}:${publication.version}"
+}
 
 group = 'sh.reception'
 version = packageJson.version
@@ -13,6 +33,11 @@ android {
   defaultConfig {
     versionCode 1
     versionName packageJson.version
+  }
+  sourceSets {
+    main {
+      if (expoNotifications != null) java.srcDirs += 'src/expoNotifications/java'
+    }
   }
   testOptions {
     unitTests.returnDefaultValues = true
@@ -24,6 +49,12 @@ dependencies {
   implementation 'sh.reception:reception:1.0.0'
   // ReactFontManager: appearance.fontFamily uses the fonts React Native knows.
   implementation 'com.facebook.react:react-android'
+
+  if (expoNotifications != null) {
+    // Both come from the app at runtime: expo-notifications and the Firebase Messaging it brings.
+    compileOnly expoNotifications
+    compileOnly 'com.google.firebase:firebase-messaging:24.1.0'
+  }
 
   testImplementation 'junit:junit:4.13.2'
   // The real org.json; Android's is a stub in JVM unit tests.
