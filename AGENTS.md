@@ -1,9 +1,10 @@
 # Rules for everyone who writes code here
 
-Reception adds the official Swift support chat to React Native through Expo Modules.
-Read the pinned Swift SDK's public API and the sibling reception-ios/AGENTS.md and
-CONTRIBUTING.md before changing the native bridge. With backend access, read
-reception/docs/SDK_SPEC.md. The Swift SDK owns chat UI, networking and storage.
+Reception adds the official Swift and Android support chat to React Native through Expo
+Modules. Read the pinned Swift SDK's public API and the sibling reception-ios/AGENTS.md and
+CONTRIBUTING.md before changing the iOS bridge; read reception-android/SPEC.md and its
+`Reception.kt` before changing the Android bridge. With backend access, read
+reception/docs/SDK_SPEC.md. The SDKs own chat UI, networking and storage.
 
 ## Style
 
@@ -12,8 +13,10 @@ aim below 200 lines. No speculative API, dependencies, force unwraps, unsafe cas
 `any` in TypeScript, ignored type errors, or secrets in logs. Validate JS input;
 never log identity, metadata, tokens, messages, or callback errors supplied by apps.
 Run `npm run format` after edits; `npm run lint` checks Prettier formatting.
-Use the public Swift API only. Keep all SDK access on the main actor. No Android
-native code. Unsupported platforms warn once, never throw, and retain default state.
+Use the public SDK APIs only (Android: plus the plugin-only `noteCurrentActivity` and
+`configureForTesting`, both `@ReceptionInternalApi`). Keep all SDK access on the main thread
+(`runOnQueue` main). `android/` mirrors `ios/` file by file in behaviour. Web and other
+platforms warn once, never throw, and retain default state.
 
 ## Native SDK
 
@@ -30,11 +33,24 @@ run `scripts/sync-ios-sdk <tag>`, verify the tarball, then release
 react-native-reception. Never publish an npm release from an unreleased SDK pin.
 These steps require an explicit release request.
 
+## Android SDK
+
+`android/build.gradle` depends on `sh.reception:reception` from Maven Central; never add
+`mavenLocal()` there. Until the SDK is published, local builds need it in `~/.m2`: copy
+reception-android at HEAD into a scratch directory (`git -C ../reception-android archive HEAD |
+tar -x -C <dir>`), run `./gradlew :reception:publishToMavenLocal` there (never Gradle inside the
+SDK repo while others build), and build the example, whose `plugins/withMavenLocal.js` adds
+`mavenLocal()` to its generated project. Bump the dependency only to a released SDK version.
+Push coexistence with expo-notifications is decided in ANDROID-PUSH-DESIGN.md.
+
 ## Verification
 
-Run `npm run typecheck`, `npm run lint`, `npm test`, `npm run test:native` (macOS with a booted iOS simulator), `npm run check:ios`, and
-`npm pack`. Test the tarball in a fresh Expo app with prebuild, pod install and an
-iOS simulator build without Podfile edits. Confirm Android autolinking excludes us.
+Run `npm run typecheck`, `npm run lint`, `npm test`, `npm run test:native` (macOS with a booted iOS simulator),
+`npm run test:android` (JDK 17, Android SDK, `npx expo prebuild --platform android` in example/),
+`npm run check:ios`, and `npm pack`. Test the tarball in a fresh Expo app with prebuild, pod install and an
+iOS simulator build without Podfile edits, and an Android build without Gradle or manifest edits.
+Build the example's release APK with `-Pandroid.enableMinifyInReleaseBuilds=true` (R8) and confirm the
+module's `Loopback` and testing code are absent from its mapping.
 Focused tests cover validation, unsupported platforms, state, hooks, errors and
 callback races. Verify actual chat and backend operations in the example app;
 record commands and observed results. Build success does not prove runtime behavior.
@@ -54,12 +70,18 @@ Native startup/animation teardown dependency cycle, but does not prove the cause
 Keep the reload button; if it recurs, capture both waiting threads before changing
 teardown. Evidence: `verification/reload-sample.txt` and `verification/review2/`.
 
-`configureForTesting` exists only in native Debug builds, accepts loopback URLs,
+`configureForTesting` exists only in native Debug builds (Android: `src/debug`, with an empty
+`src/release` twin), accepts loopback URLs (the emulator reaches the backend through
+`adb reverse tcp:3000 tcp:<backend port>`),
 and is deliberately absent from the package's TypeScript API. Only the example
 accesses it via `requireNativeModule`. Release builds must not contain it.
-Paywall checks fail closed after five seconds, on cancellation, and on JS teardown.
+Paywall checks fail closed after five seconds, on cancellation, and on JS teardown. On Android
+React Native pauses JS timers while the SDK's chat activity is on top; a check that timed out
+then runs again once the chat closes.
 
-The optional Expo push entry owns routing; its presentation function never routes.
+The optional Expo push entry owns routing on iOS; its presentation function never routes. On
+Android the SDK owns receipt, presentation and taps (`ReceptionPushReceiver`); the entry only
+keeps the FCM token current.
 Keep notification deduplication in native process state so JS reloads cannot replay
 Expo's retained tap. Never clear Expo's shared last-response storage: another router
 may own a newer notification. Registration never requests permission.

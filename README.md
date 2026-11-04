@@ -1,11 +1,11 @@
 # Reception for React Native
 
 Native support chat, with replies managed in the Reception dashboard.
-The chat runs entirely in the official Reception iOS SDK.
+The chat runs entirely in the official Reception SDKs for iOS and Android.
 
 Requires Expo SDK 54+ (verified 54–57), React Native 0.81+, React 19.1+,
-iOS 17+, and Xcode 26. Use the React Native and React versions selected by Expo.
-Use a development build; Expo Go cannot load the native SDK.
+iOS 17+ with Xcode 26, and Android 7 (API 24)+. Use the React Native and React versions
+selected by Expo. Use a development build; Expo Go cannot load the native SDKs.
 
 ## 1. Install
 
@@ -17,11 +17,13 @@ Add `"react-native-reception"` to `expo.plugins` in your app config. Apply plugi
 even if a generated `ios/` directory already exists, then build:
 
 ```sh
-npx expo prebuild --platform ios
+npx expo prebuild
 npx expo run:ios
+npx expo run:android
 ```
 
-The plugin sets iOS 17 as the minimum. If you use `expo-build-properties`, set its
+On Android, Gradle resolves the Reception Android SDK (`sh.reception:reception`) from
+Maven Central; no Gradle or manifest edits are needed. The plugin sets iOS 17 as the minimum. If you use `expo-build-properties`, set its
 `ios.deploymentTarget` to `17.0` or higher too. No Podfile edits or `use_frameworks!`
 are needed for generated projects.
 
@@ -61,6 +63,12 @@ useEffect(() => startReceptionPush(), []);
 
 Import `useEffect` from React. The helper registers when already authorized and routes
 receipts and taps, including cold starts. It never requests permission.
+
+On Android, add your Firebase project's `google-services.json` with expo-notifications'
+`android.googleServicesFile` and upload the Firebase service account in the dashboard's push
+settings. The Reception SDK reads the FCM token itself, shows replies and opens the chat from
+a tap; the helper only keeps the token current. Reception's replies never reach
+expo-notifications' handlers, and your other notifications are unaffected.
 After your app’s permission request, call `await refreshReceptionPush()` from the
 same optional entry to register immediately, including for provisional permission.
 Compose
@@ -70,8 +78,16 @@ import does not load `expo-notifications`.
 
 ## Compatibility
 
-Android and web have no Reception native code. Calls do nothing, warn once, and
-return default state.
+Web and other platforms have no Reception native code. Calls do nothing, warn once,
+and return default state.
+
+Android notes: the chat sheet is its own activity, so React Native pauses JS timers
+(`setTimeout`) while it is open. A `paywallAvailability` callback should not wait on a timer;
+vendor SDK calls and network requests are unaffected, and a check that timed out while the
+chat was open runs again once it closes. Present a paywall from `onPaywall` after
+`await Reception.closeChat()` if it must appear above the sheet. Appearance images
+(`welcomeIcon.image`, `closeImage`) name Android drawable resources, and `fontFamily` names a
+font React Native knows (`assets/fonts` or expo-font).
 
 For native projects you maintain by hand, follow the guide’s manual target and
 capability steps instead of prebuild. Bare React Native needs
