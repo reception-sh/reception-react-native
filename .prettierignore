@@ -9,3 +9,4 @@ example/.expo/
 package-lock.json
 example/package-lock.json
 src/sdkVersion.ts
+example/google-services.json

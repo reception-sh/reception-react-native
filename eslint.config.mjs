@@ -14,7 +14,13 @@ export default tseslint.config(
   },
   ...tseslint.configs.recommended,
   {
-    files: ['*.js', '*.cjs', 'tests/*.cjs', 'example/*.js'],
+    files: [
+      '*.js',
+      '*.cjs',
+      'tests/*.cjs',
+      'example/*.js',
+      'example/plugins/*.js',
+    ],
     rules: { '@typescript-eslint/no-require-imports': 'off' },
   },
 );

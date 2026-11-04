@@ -10,9 +10,19 @@
       "supportsTablet": false,
       "infoPlist": {
         "CFBundleLocalizations": ["en", "de"],
-        "NSAppTransportSecurity": { "NSAllowsLocalNetworking": true }
+        "NSAppTransportSecurity": {
+          "NSAllowsLocalNetworking": true
+        }
       }
     },
-    "plugins": ["react-native-reception", "expo-notifications"]
+    "plugins": [
+      "react-native-reception",
+      "expo-notifications",
+      "./plugins/withMavenLocal"
+    ],
+    "android": {
+      "package": "sh.reception.receptionReactNativeExample",
+      "googleServicesFile": "./google-services.json"
+    }
   }
 }

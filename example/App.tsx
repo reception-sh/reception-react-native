@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   Button,
+  Platform,
   PlatformColor,
   ScrollView,
   StyleSheet,
@@ -99,6 +100,7 @@ export default function App() {
     } else {
       await Reception.configure({ appId });
     }
+    Reception.logLevel = 'debug';
     setConfigured(true);
     Reception.appearance = {
       accentColor: { light: '#8A2BE2', dark: '#C89FFF' },
@@ -259,8 +261,18 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  page: { backgroundColor: PlatformColor('systemBackgroundColor') },
-  text: { color: PlatformColor('labelColor') },
+  page: {
+    backgroundColor: PlatformColor(
+      Platform.OS === 'ios'
+        ? 'systemBackgroundColor'
+        : '?android:attr/colorBackground',
+    ),
+  },
+  text: {
+    color: PlatformColor(
+      Platform.OS === 'ios' ? 'labelColor' : '?android:attr/textColorPrimary',
+    ),
+  },
   container: { padding: 24, paddingTop: 70, paddingBottom: 40, gap: 6 },
   title: { fontSize: 23, fontWeight: '600', marginBottom: 8 },
   events: { fontSize: 13, marginTop: 12 },
