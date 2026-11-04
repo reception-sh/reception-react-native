@@ -1,30 +1,23 @@
 package sh.reception.reactnative
 
 import android.content.Context
-import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import sh.reception.Reception
+import sh.reception.ReceptionColor as SdkColor
 
 /** Applies the appearance JS validated to the SDK. Main thread only. */
 internal object ReceptionAppearance {
-  private var last: String? = null
-
   fun apply(json: String, context: Context) {
     val values = JsonValues.parse(json) ?: return
-    last = json
     val accepted = values.toMutableMap()
     val previous = Reception.appearance
     val style = Reception.Appearance()
-    val dark = when (values["preferredColorScheme"]) {
-      "light" -> false
-      "dark" -> true
-      else -> context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK ==
-        Configuration.UI_MODE_NIGHT_YES
-    }
-    fun color(key: String): Color? = ReceptionColor.decode(values[key])?.let { Color(if (dark) it.dark else it.light) }
+    // The SDK picks the variant for the chat's scheme (preferredColorScheme or the system's) and follows switches.
+    fun color(key: String): SdkColor? =
+      ReceptionColor.decode(values[key])?.let { SdkColor(Color(it.light), Color(it.dark)) }
     style.accentColor = color("accentColor")
     style.onAccentColor = color("onAccentColor")
     style.chatBackground = color("chatBackground")
@@ -88,11 +81,6 @@ internal object ReceptionAppearance {
     }
     ReceptionBridge.appearanceValues = accepted
     Reception.appearance = style
-  }
-
-  /** The SDK takes one color per property; a light/dark pair is resolved again when the system switches. */
-  fun systemThemeChanged(context: Context) {
-    last?.let { apply(it, context) }
   }
 
   private fun number(value: Any?): Float? = (value as? Number)?.toFloat()?.takeIf { it.isFinite() }

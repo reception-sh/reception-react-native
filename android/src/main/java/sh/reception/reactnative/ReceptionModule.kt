@@ -1,8 +1,6 @@
 package sh.reception.reactnative
 
-import android.content.ComponentCallbacks
 import android.content.Context
-import android.content.res.Configuration
 import android.os.Handler
 import android.os.Looper
 import expo.modules.kotlin.exception.Exceptions
@@ -19,18 +17,6 @@ import sh.reception.ReceptionInternalApi
 
 class ReceptionModule : Module() {
   private val bridge = ReceptionBridge()
-  private var nightMode: Int? = null
-  private val themeCallbacks = object : ComponentCallbacks {
-    override fun onConfigurationChanged(configuration: Configuration) {
-      val mode = configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-      if (mode == nightMode) return
-      nightMode = mode
-      ReceptionAppearance.systemThemeChanged(context)
-    }
-
-    @Deprecated("Required by ComponentCallbacks")
-    override fun onLowMemory() = Unit
-  }
 
   private val context: Context
     get() = appContext.reactContext ?: throw Exceptions.ReactContextLost()
@@ -40,16 +26,9 @@ class ReceptionModule : Module() {
     Constant("version") { Reception.version }
     Events("onState", "onEvent", "onPaywall", "onScreen", "onAvailability")
 
-    OnCreate {
-      nightMode = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-      context.applicationContext.registerComponentCallbacks(themeCallbacks)
-      noteCurrentActivity()
-    }
+    OnCreate { noteCurrentActivity() }
     OnActivityEntersForeground { noteCurrentActivity() }
-    OnDestroy {
-      appContext.reactContext?.applicationContext?.unregisterComponentCallbacks(themeCallbacks)
-      Handler(Looper.getMainLooper()).post { bridge.invalidate() }
-    }
+    OnDestroy { Handler(Looper.getMainLooper()).post { bridge.invalidate() } }
 
     AsyncFunction("connect") {
       bridge.connect { name, payload -> sendEvent(name, payload) }
