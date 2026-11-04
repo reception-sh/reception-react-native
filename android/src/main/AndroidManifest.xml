@@ -1,0 +1,16 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <application>
+    <!-- Reception replies are data-only FCM messages. Google Play services delivers every FCM message to the app as
+         this ordered broadcast; above Firebase's own receiver (priority 0), this one hands Reception payloads to the
+         SDK, which posts the notification, and ends the broadcast so no other messaging service (expo-notifications,
+         React Native Firebase) shows it again. Every other message passes on unchanged. See ANDROID-PUSH-DESIGN.md. -->
+    <receiver
+      android:name="sh.reception.reactnative.ReceptionPushReceiver"
+      android:exported="true"
+      android:permission="com.google.android.c2dm.permission.SEND">
+      <intent-filter android:priority="100">
+        <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+      </intent-filter>
+    </receiver>
+  </application>
+</manifest>

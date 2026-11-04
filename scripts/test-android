@@ -1,0 +1,20 @@
+#!/usr/bin/env node
+// Runs the Android module's JVM unit tests through the example's Gradle build, which autolinks the module.
+// Needs JDK 17, the Android SDK (ANDROID_HOME), `npx expo prebuild --platform android` in example/, and, until
+// sh.reception:reception is on Maven Central, the SDK in ~/.m2 (see AGENTS.md).
+import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+
+const project = fileURLToPath(new URL('../example/android', import.meta.url));
+if (!existsSync(`${project}/gradlew`)) {
+  console.error(
+    'Run `npx expo prebuild --platform android` in example/ first.',
+  );
+  process.exit(1);
+}
+execFileSync(
+  './gradlew',
+  [':react-native-reception:testDebugUnitTest', '--console=plain'],
+  { cwd: project, stdio: 'inherit' },
+);

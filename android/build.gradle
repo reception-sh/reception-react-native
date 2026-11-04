@@ -1,0 +1,32 @@
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+def packageJson = new groovy.json.JsonSlurper().parse(file('../package.json'))
+
+group = 'sh.reception'
+version = packageJson.version
+
+android {
+  namespace 'sh.reception.reactnative'
+  defaultConfig {
+    versionCode 1
+    versionName packageJson.version
+  }
+  testOptions {
+    unitTests.returnDefaultValues = true
+  }
+}
+
+dependencies {
+  // Reception Android SDK from Maven Central; it brings Compose, coroutines and its consumer R8 rules.
+  implementation 'sh.reception:reception:1.0.0'
+  // ReactFontManager: appearance.fontFamily uses the fonts React Native knows.
+  implementation 'com.facebook.react:react-android'
+
+  testImplementation 'junit:junit:4.13.2'
+  // The real org.json; Android's is a stub in JVM unit tests.
+  testImplementation 'org.json:json:20231013'
+  testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1'
+}
