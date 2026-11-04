@@ -15,11 +15,14 @@ internal object AppearanceResources {
   /**
    * A font family React Native knows: one registered with `ReactFontManager` (expo-font, `res/font` families) or an
    * `assets/fonts/<name>.ttf|.otf` file, the same lookup as `<Text style={{ fontFamily }}>`. Null for an unknown name,
-   * which Android would otherwise draw in the default face.
+   * which Android would otherwise draw in the default face. Only `getTypeface(name, style, assets)` is used: it is the
+   * same in React Native 0.81 through 0.86 (`customFontFamilies` exists only from 0.85).
    */
   fun font(context: Context, name: String): FontFamily? {
     val typeface = ReactFontManager.getInstance().getTypeface(name, Typeface.NORMAL, context.assets)
-    if (typeface == Typeface.DEFAULT && name !in ReactFontManager.getInstance().customFontFamilies) return null
+    // An unknown family falls back to `Typeface.create(name, NORMAL)`, the default face itself; registered and asset
+    // fonts are always their own instances.
+    if (typeface == Typeface.DEFAULT) return null
     return FontFamily(androidx.compose.ui.text.font.Typeface(typeface))
   }
 
