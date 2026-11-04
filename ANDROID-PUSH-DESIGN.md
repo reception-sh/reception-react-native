@@ -32,17 +32,19 @@ Revised 2026-11-04 (fix round 1). The module ships `ReceptionExpoMessagingServic
   `Reception.setPushToken` on the main thread when the SDK is configured. Before `configure` the SDK reads the token
   itself.
 
-The config plugin declares it in the app manifest with the `com.google.firebase.MESSAGING_EVENT` filter at priority 10,
-above Expo's -1, when Node resolves `expo-notifications` from the project. Otherwise it declares the SDK's own
-`sh.reception.ReceptionMessagingService` (the app then needs `com.google.firebase:firebase-messaging`), except with
-React Native Firebase (`@react-native-firebase/messaging` resolves), whose own service stays; that host calls
-`Reception.handlePushMessage` from a native subclass of it. The plugin removes either Reception entry first, so a
-prebuild without `--clean` never keeps a service for the other setup. Hosts without prebuild add the entry themselves
-(README).
+When Node resolves `expo-notifications` from the project, the module's Gradle build compiles this class against
+expo-notifications as the app links it (its Gradle project when built from source, otherwise its prebuilt publication,
+as in Expo 57) and uses `src/expoNotifications/AndroidManifest.xml` as the module's manifest. That manifest declares the
+service with the `com.google.firebase.MESSAGING_EVENT` filter at priority 10, above Expo's -1, so the class and its
+declaration exist together or not at all, with or without prebuild. (Declared in the app's own manifest, the entry fails
+release lint: the app's compile classpath does not see Firebase's service behind Expo's.) If Node resolves
+expo-notifications but autolinking linked it neither way, the build fails with a message.
 
-Gradle compiles the subclass under the same condition, against expo-notifications as the app links it: its Gradle
-project when built from source, otherwise its prebuilt publication (Expo 57). If Node resolves expo-notifications but
-neither exists, the build fails with a message instead of producing an app whose manifest names a missing class.
+Without expo-notifications the config plugin declares the SDK's own `sh.reception.ReceptionMessagingService` in the
+app manifest (the app then needs `com.google.firebase:firebase-messaging`), except with React Native Firebase
+(`@react-native-firebase/messaging` resolves), whose own service stays; that host calls `Reception.handlePushMessage`
+from a native subclass of it. The plugin first removes Reception entries of earlier runs, so a prebuild without
+`--clean` never keeps a service for the other setup. Hosts without prebuild add that entry themselves (README).
 
 Why this over the earlier receiver (a `c2dm.intent.RECEIVE` receiver at priority 100 that aborted the broadcast):
 

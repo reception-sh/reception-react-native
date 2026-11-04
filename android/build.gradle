@@ -4,9 +4,9 @@ plugins {
 }
 
 def packageJson = new groovy.json.JsonSlurper().parse(file('../package.json'))
-// ReceptionExpoMessagingService takes Reception's replies out of expo-notifications' delivery. The config plugin
-// declares it when Node resolves expo-notifications from the project, so it is compiled under the same condition,
-// against expo-notifications as the app links it: its Gradle project, or the prebuilt publication (Expo 57+).
+// ReceptionExpoMessagingService takes Reception's replies out of expo-notifications' delivery. When Node resolves
+// expo-notifications from the project (the config plugin's condition too), it is compiled and declared, against
+// expo-notifications as the app links it: its Gradle project, or the prebuilt publication (Expo 57+).
 def expoNotifications = findExpoNotifications()
 
 def findExpoNotifications() {
@@ -36,7 +36,10 @@ android {
   }
   sourceSets {
     main {
-      if (expoNotifications != null) java.srcDirs += 'src/expoNotifications/java'
+      if (expoNotifications != null) {
+        java.srcDirs += 'src/expoNotifications/java'
+        manifest.srcFile 'src/expoNotifications/AndroidManifest.xml'
+      }
     }
   }
   testOptions {

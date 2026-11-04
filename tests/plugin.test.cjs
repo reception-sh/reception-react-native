@@ -195,15 +195,13 @@ async function messagingServices(packages, previous = []) {
   ]);
 }
 
-test('declares the Expo service with Reception replies above expo-notifications', async () => {
-  expect(await messagingServices(['expo-notifications'])).toEqual([
-    ['com.example.Other', undefined, undefined],
-    [
-      'sh.reception.reactnative.ReceptionExpoMessagingService',
-      '10',
-      'com.google.firebase.MESSAGING_EVENT',
-    ],
-  ]);
+test("declares nothing with expo-notifications, whose subclass the module's manifest declares", async () => {
+  expect(
+    await messagingServices(
+      ['expo-notifications'],
+      ['sh.reception.ReceptionMessagingService'],
+    ),
+  ).toEqual([['com.example.Other', undefined, undefined]]);
 });
 
 test("declares the SDK's service without expo-notifications", async () => {

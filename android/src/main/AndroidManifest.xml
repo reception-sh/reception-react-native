@@ -1,2 +1,3 @@
-<!-- Push: the config plugin declares the messaging service in the app's manifest (see ANDROID-PUSH-DESIGN.md). -->
+<!-- With expo-notifications, build.gradle uses src/expoNotifications/AndroidManifest.xml instead; without it the config
+     plugin declares the SDK's messaging service in the app (see ANDROID-PUSH-DESIGN.md). -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" />

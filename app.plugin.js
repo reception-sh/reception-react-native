@@ -27,17 +27,22 @@ function resolves(name, projectRoot) {
 }
 
 // The one FCM messaging service that receives Reception's replies (see ANDROID-PUSH-DESIGN.md). With
-// expo-notifications it is Expo's service with Reception's replies taken out first, declared above Expo's own (-1).
-// React Native Firebase brings its own service, whose host calls Reception.handlePushMessage (see the README).
+// expo-notifications the module's own manifest declares Reception's subclass of Expo's service; React Native Firebase
+// brings its own service, whose host calls Reception.handlePushMessage (see the README). Otherwise the SDK's.
+const SDK_SERVICE = 'sh.reception.ReceptionMessagingService';
+// Prebuild without --clean keeps entries of earlier runs, which may name a class that is no longer built.
 const SERVICES = [
   'sh.reception.reactnative.ReceptionExpoMessagingService',
-  'sh.reception.ReceptionMessagingService',
+  SDK_SERVICE,
 ];
 
 function messagingService(projectRoot) {
-  if (resolves('expo-notifications', projectRoot)) return SERVICES[0];
-  if (resolves('@react-native-firebase/messaging', projectRoot)) return null;
-  return SERVICES[1];
+  if (
+    resolves('expo-notifications', projectRoot) ||
+    resolves('@react-native-firebase/messaging', projectRoot)
+  )
+    return null;
+  return SDK_SERVICE;
 }
 
 function withReceptionMessagingService(config) {
@@ -46,7 +51,6 @@ function withReceptionMessagingService(config) {
     const application = AndroidConfig.Manifest.getMainApplicationOrThrow(
       config.modResults,
     );
-    // Prebuild without --clean keeps the previous run's entry, which may name a class no longer built.
     application.service = (application.service ?? []).filter(
       (service) => !SERVICES.includes(service.$['android:name']),
     );
