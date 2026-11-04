@@ -120,6 +120,7 @@ Verified with fresh iOS development builds and live message/reply delivery:
 | 57.0.28 | 0.86.3       | 19.2.3 |
 
 Android was verified on Expo 57 / React Native 0.86.3 with an Android 16 emulator: live
-chat, replies and FCM push in the example, and a fresh development build from the tarball.
+chat, replies and FCM push in the example, and a fresh development build from the tarball. A
+fresh Expo 54 / React Native 0.81.5 app with expo-notifications 0.32 builds from the tarball.
 
 License: MIT.

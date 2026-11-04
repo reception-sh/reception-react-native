@@ -16,7 +16,10 @@ release assets or logs.
    Install this exact tarball into a fresh Expo app. Add the config plugin, run
    prebuild and pod install, and build for an iOS simulator without Podfile edits.
    Run `npx expo prebuild --platform android` and `./gradlew :app:assembleDebug` without
-   Gradle or manifest edits. Verify live chat, backend operations and FCM push in the example
+   Gradle or manifest edits. Repeat the Android build in a fresh app on the oldest supported stack
+   (`npx create-expo-app --template blank-typescript@sdk-54`: Expo 54, React Native 0.81, the
+   `peerDependencies` minimum) with expo-notifications installed, so the module compiles against
+   React Native 0.81's APIs and expo-notifications 0.32. Verify live chat, backend operations and FCM push in the example
    on iOS and Android; record runtime evidence separately from builds.
 5. Commit the reviewed release changes. After approval, push the release commit.
 6. After approval, create and push the annotated Git tag matching `package.json`
