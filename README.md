@@ -143,5 +143,11 @@ Verified with fresh iOS development builds and live message/reply delivery:
 Android was verified on Expo 57 / React Native 0.86.3 with an Android 16 emulator: live
 chat, replies and FCM push in the example, and a fresh development build from the tarball. A
 fresh Expo 54 / React Native 0.81.5 app with expo-notifications 0.32 builds from the tarball.
+Final check (2026-11-05) against Reception Android SDK 728a9ce from `~/.m2`: typecheck, lint, 77 Jest tests and
+13 Android unit tests pass, the example debug build succeeds, and live chat, the embedded chat with the keyboard, an
+FCM reply through Reception's Expo messaging service with its tap, and logout work on an Android 16 emulator. The run
+found one SDK defect, not fixed here: in a host whose Compose resolves to 1.8 or newer (the example resolves
+foundation-layout 1.9.3), a "Not delivered" message crashes the chat with `NoSuchMethodError: FlowRow(…FlowRowOverflow…)`
+from `SendingStatus.kt`, because the SDK is compiled against Compose 1.7. It must be fixed in the SDK before release.
 
 License: MIT.
