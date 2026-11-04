@@ -36,7 +36,7 @@ Notifications.setNotificationHandler({
 export default function App() {
   const unread = useReceptionUnreadCount();
   const open = useReceptionChatOpen();
-  const [embedded, setEmbedded] = useState(false);
+  const [embedded, setEmbedded] = useState<'off' | 'shown' | 'clipped'>('off');
   const [configured, setConfigured] = useState(false);
   useEffect(() => {
     if (configured) return startReceptionPush();
@@ -122,14 +122,25 @@ export default function App() {
     await Reception.refreshPaywalls({ invalidate: true });
   }
 
-  if (embedded)
+  if (embedded !== 'off')
     return (
       <View style={styles.embedded}>
         <Button
           title="Back from embedded chat"
-          onPress={() => setEmbedded(false)}
+          onPress={() => setEmbedded('off')}
         />
-        <ReceptionChatView style={styles.chat} />
+        {embedded === 'clipped' ? (
+          <Button
+            title="Show clipped chat"
+            onPress={() => setEmbedded('shown')}
+          />
+        ) : null}
+        {/* Clipped: mounted outside its parent's clip, so React Native lays it out while it is detached. */}
+        <View style={styles.chat} removeClippedSubviews>
+          <ReceptionChatView
+            style={embedded === 'clipped' ? styles.offscreen : styles.chat}
+          />
+        </View>
       </View>
     );
 
@@ -215,7 +226,11 @@ export default function App() {
           setStatus('App language selected');
         }}
       />
-      <Button title="Embedded chat" onPress={() => setEmbedded(true)} />
+      <Button title="Embedded chat" onPress={() => setEmbedded('shown')} />
+      <Button
+        title="Embedded chat, mounted clipped"
+        onPress={() => setEmbedded('clipped')}
+      />
       <Button
         title="Logout"
         onPress={() => void run(Reception.logout, 'Logged out')}
@@ -277,5 +292,6 @@ const styles = StyleSheet.create({
   title: { fontSize: 23, fontWeight: '600', marginBottom: 8 },
   events: { fontSize: 13, marginTop: 12 },
   embedded: { flex: 1, paddingTop: 65 },
-  chat: { flex: 1 },
+  chat: { flex: 1, overflow: 'hidden' },
+  offscreen: { position: 'absolute', top: 5000, width: 300, height: 400 },
 });

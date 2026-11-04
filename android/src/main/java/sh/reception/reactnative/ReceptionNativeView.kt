@@ -28,19 +28,39 @@ internal class ReceptionNativeView(context: Context, appContext: AppContext) : E
     layoutPosted = true
     post {
       layoutPosted = false
-      if (isAttachedToWindow) layoutChat(width, height)
+      if (chat.isAttachedToWindow) layoutChat(width, height)
     }
   }
 
-  override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-    if (isAttachedToWindow) layoutChat(right - left, bottom - top)
+  // React Native measures views that are not attached (clipped by `removeClippedSubviews`, or a subtree not yet in the
+  // window). Measuring the Compose child there would create its composition without a window recomposer and throw, so
+  // only the wrapper's size is recorded; the child is measured once attached.
+  override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+    val width = View.MeasureSpec.getSize(widthMeasureSpec)
+    val height = View.MeasureSpec.getSize(heightMeasureSpec)
+    setMeasuredDimension(width, height)
+    if (chat.isAttachedToWindow) measureChat(width, height)
   }
 
-  private fun layoutChat(width: Int, height: Int) {
+  // The child attaches after this callback, so its first layout is posted (see requestLayout).
+  override fun onAttachedToWindow() {
+    super.onAttachedToWindow()
+    requestLayout()
+  }
+
+  override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+    if (chat.isAttachedToWindow) layoutChat(right - left, bottom - top)
+  }
+
+  private fun measureChat(width: Int, height: Int) {
     chat.measure(
       View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
       View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY),
     )
+  }
+
+  private fun layoutChat(width: Int, height: Int) {
+    measureChat(width, height)
     chat.layout(0, 0, width, height)
   }
 }
