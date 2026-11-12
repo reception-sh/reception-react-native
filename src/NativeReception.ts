@@ -68,6 +68,8 @@ export interface NativeReception {
   ): Promise<void>;
   /** Android only: the SDK fetches the FCM token when notifications are allowed. */
   registerForPushIfAuthorized?(): Promise<void>;
+  /** Android only: a token Firebase issued on its own; the SDK stages it only while notifications are allowed. */
+  registerPushTokenIfAuthorized?(token: string): Promise<void>;
   setAppearance(value: string, revision: number): Promise<Snapshot>;
   setUpdatesAppBadge(value: boolean, revision: number): Promise<Snapshot>;
   setOpensWebLinksInApp(value: boolean, revision: number): Promise<Snapshot>;

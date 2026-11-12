@@ -30,9 +30,11 @@ Revised 2026-11-04 (fix round 1). With expo-notifications (see the rule below) t
   message ID is passed separately because Firebase removes `google.*` keys, `google.message_id` among them, from
   `RemoteMessage.data`; without it the SDK cannot recognize a redelivered message and would show it twice.
   Everything else goes to `super`, so Expo handles it exactly as before.
-- `onNewToken`: `super` (Expo's token flow and listeners unchanged), then the token is staged with
-  `Reception.setPushToken` on the main thread when the SDK is configured. Before `configure` the SDK reads the token
-  itself.
+- `onNewToken`: `super` (Expo's token flow and listeners unchanged), then the token goes to
+  `Reception.registerPushTokenIfAuthorized` (plugin-only, `@ReceptionInternalApi`) on the main thread when the SDK is
+  configured. The SDK stages it only while notifications are allowed, as it does for the token it reads itself, so a
+  fresh install holds no token on the backend before the user allows notifications. Before `configure` the SDK reads
+  the token itself.
 
 ## Which service: one rule
 
@@ -80,7 +82,9 @@ a second independent service (only one receives).
 
 `startReceptionPush()` on Android only: `refreshReceptionPush()` calls the native
 `registerForPushIfAuthorized()` (after the app's own permission flow; never prompts), token rotations from
-`addPushTokenListener` go to `setPushToken`, and logout or deletion triggers registration again.
+`addPushTokenListener` go to the native `registerPushTokenIfAuthorized` (staged only while notifications are allowed),
+and logout or deletion triggers registration again. Only a token the app passes to `Reception.setPushToken` itself is
+staged regardless of the permission: that is the app's decision.
 `receptionNotificationBehavior` returns null (Expo never sees Reception replies). `handleExpoNotification` and the
 native `NotificationRouting` stay iOS only. `Reception.setPushToken` accepts the FCM token
 (`[A-Za-z0-9_:-]{1,4096}`; the environment argument is validated and ignored) and `handlePushNotification`

@@ -9,7 +9,9 @@ import android.os.Bundle
 import android.os.Looper
 import com.google.firebase.messaging.RemoteMessage
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -18,8 +20,12 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import sh.reception.Reception
 
-/** A Reception reply redelivered by FCM is shown once: the service passes the message ID Firebase keeps out of `data`. */
+/**
+ * A Reception reply redelivered by FCM is shown once: the service passes the message ID Firebase keeps out of `data`. A
+ * token Firebase issues reaches the SDK only while notifications are allowed.
+ */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
 class ReceptionExpoMessagingServiceTest {
@@ -50,6 +56,30 @@ class ReceptionExpoMessagingServiceTest {
     awaitNotifications(1)
     settle(300)
     assertEquals(listOf("c2"), notifications().activeNotifications.map { it.tag.substringAfterLast(":") })
+  }
+
+  @Test
+  fun `a new token is staged only while notifications are allowed`() {
+    val lines = mutableListOf<String>()
+    Reception.logLevel = Reception.LogLevel.DEBUG
+    Reception.logHandler = { _, line -> lines.add(line) }
+    Reception.configure(application, "app_unitTestTokenGate00000")
+    val service = Robolectric.buildService(ReceptionExpoMessagingService::class.java).create().get()
+    val manager = shadowOf(notifications())
+
+    manager.setNotificationsEnabled(false)
+    lines.clear()
+    service.onNewToken("fcm:token_1")
+    settle(50)
+    assertTrue(lines.any { it.startsWith("Push token not staged, notifications not allowed") })
+    assertFalse(lines.any { it.startsWith("Push token staged") })
+
+    manager.setNotificationsEnabled(true)
+    lines.clear()
+    service.onNewToken("fcm:token_1")
+    settle(50)
+    assertTrue(lines.any { it.startsWith("Push token staged") })
+    Reception.logHandler = null
   }
 
   /** As FCM delivers it: the ID arrives as `google.message_id`, which `RemoteMessage.data` leaves out. */

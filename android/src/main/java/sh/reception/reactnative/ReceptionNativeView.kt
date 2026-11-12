@@ -7,8 +7,9 @@ import expo.modules.kotlin.views.ExpoView
 import sh.reception.ReceptionChatView
 
 /**
- * The SDK's chat screen inside a React Native view, filling the frame React Native gives it. Keyboard insets reach the
- * composer through the window like in any Android screen.
+ * The SDK's chat screen inside a React Native view, filling the frame React Native gives it. The window's insets reach
+ * the chat unchanged: the SDK pads it only for the part of the keyboard and system bars that overlaps it, so the
+ * composer sits on the keyboard also above a tab bar.
  */
 internal class ReceptionNativeView(context: Context, appContext: AppContext) : ExpoView(context, appContext) {
   // The activity's context lets the chat ask for notification permission from its card.

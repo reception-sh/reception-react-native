@@ -13,8 +13,11 @@ aim below 200 lines. No speculative API, dependencies, force unwraps, unsafe cas
 `any` in TypeScript, ignored type errors, or secrets in logs. Validate JS input;
 never log identity, metadata, tokens, messages, or callback errors supplied by apps.
 Run `npm run format` after edits; `npm run lint` checks Prettier formatting.
-Use the public SDK APIs only (Android: plus the plugin-only `noteCurrentActivity` and
-`configureForTesting`, both `@ReceptionInternalApi`). Keep all SDK access on the main thread
+Use the public SDK APIs only (Android: plus the plugin-only `noteCurrentActivity`, `noteNewIntent`,
+`registerPushTokenIfAuthorized` and `configureForTesting`, all `@ReceptionInternalApi`). `ReceptionPackage`
+(autolinked by its file name and `Package` import) hands every new intent of the `ReactActivity` to
+`noteNewIntent` from an Expo `ReactActivityLifecycleListener`, because `ReactActivity` passes new intents to React
+instead of `ComponentActivity`'s listeners; it must return false so React keeps the intent. Keep all SDK access on the main thread
 (`runOnQueue` main). `android/` mirrors `ios/` file by file in behaviour. Web and other
 platforms warn once, never throw, and retain default state.
 

@@ -153,9 +153,12 @@ function startAndroid(): () => void {
   refreshRegistration = () =>
     native?.registerForPushIfAuthorized?.().catch(reportFailure) ??
     Promise.resolve();
+  // A rotated token goes through the SDK's permission check, like the token it reads itself.
   const token = Notifications.addPushTokenListener((value) => {
-    if (typeof value.data === 'string')
-      void Reception.setPushToken(value.data).catch(reportFailure);
+    if (typeof value.data === 'string' && /^[\w:-]{1,4096}$/.test(value.data))
+      void native
+        ?.registerPushTokenIfAuthorized?.(value.data)
+        .catch(reportFailure);
   });
   const reset = onPushSessionReset(() => {
     void refreshReceptionPush();

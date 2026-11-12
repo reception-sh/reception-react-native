@@ -208,11 +208,14 @@ test('Android only keeps the FCM token current; the SDK owns notifications and t
   await helper.refreshReceptionPush();
   expect(mock.native.registerForPushIfAuthorized).toHaveBeenCalledTimes(1);
   push.token.emit({ type: 'android', data: 'fcm:Token_1-a' });
+  push.token.emit({ type: 'android', data: 'not a token' });
   await flush();
-  expect(mock.native.setPushToken).toHaveBeenLastCalledWith(
+  // A rotation is staged only while notifications are allowed; the SDK decides.
+  expect(mock.native.registerPushTokenIfAuthorized).toHaveBeenCalledTimes(1);
+  expect(mock.native.registerPushTokenIfAuthorized).toHaveBeenLastCalledWith(
     'fcm:Token_1-a',
-    'automatic',
   );
+  expect(mock.native.setPushToken).not.toHaveBeenCalled();
   await Reception.logout();
   await flush();
   expect(mock.native.registerForPushIfAuthorized).toHaveBeenCalledTimes(2);
@@ -222,7 +225,7 @@ test('Android only keeps the FCM token current; the SDK owns notifications and t
   push.token.emit({ type: 'android', data: 'other' });
   await flush();
   expect(mock.native.registerForPushIfAuthorized).toHaveBeenCalledTimes(2);
-  expect(mock.native.setPushToken).toHaveBeenCalledTimes(1);
+  expect(mock.native.registerPushTokenIfAuthorized).toHaveBeenCalledTimes(1);
 });
 
 test.each(['web'])('%s has no notification side effects', async (platform) => {

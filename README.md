@@ -3,8 +3,9 @@
 Native support chat, with replies managed in the Reception dashboard.
 The chat runs entirely in the official Reception SDKs for iOS and Android.
 
-Requires Expo SDK 54+ (verified 54–57), React Native 0.81+, React 19.1+,
-iOS 17+ with Xcode 26, and Android 7 (API 24)+. Use the React Native and React versions
+Requires Expo SDK 54+ (verified 54–58; Expo 58 so far on Android only), React Native 0.81+, React 19.1+,
+iOS 17+ with Xcode 26, and Android 7 (API 24)+ (devices on Android 7.0 itself need
+[one addition](https://reception.sh/docs/troubleshooting#android-7)). Use the React Native and React versions
 selected by Expo. Use a development build; Expo Go cannot load the native SDKs.
 
 ## 1. Install
@@ -123,7 +124,19 @@ vendor SDK calls and network requests are unaffected, and a check that timed out
 chat was open runs again once it closes. Present a paywall from `onPaywall` after
 `await Reception.closeChat()` if it must appear above the sheet. Appearance images
 (`welcomeIcon.image`, `closeImage`) name Android drawable resources, and `fontFamily` names a
-font React Native knows (`assets/fonts` or expo-font).
+font React Native knows (`assets/fonts` or expo-font). With Expo's `singleTask` launcher activity,
+a return through the app icon makes Android close every screen above it; the chat sheet then comes
+back open by itself (after a notification, deep link or shortcut it stays closed). This needs the
+`ReactActivityDelegateWrapper` that prebuild and `install-expo-modules` put in `MainActivity`.
+When Android ends the app's process while the chat sheet is open and the person returns through
+Recents, your app's screen comes up at once and takes touches; the chat opens again, already open,
+as soon as JavaScript calls `Reception.configure`, if that call, the SDK's check of the stored chat
+and a resumed screen all happen within 5 seconds of the return and nothing closed or opened the
+chat meanwhile. It starts at the latest messages, and an open
+photo is closed. `closeChat()`, `logout()` and `deleteData()` cancel it, also when called before
+`configure`, and so does a deep link, shortcut or notification that reaches the running main activity
+meanwhile (one that starts a new activity does not; a tap on a Reception reply opens the chat as
+usual, once).
 
 For native projects you maintain by hand, follow the guide’s manual target and
 capability steps instead of prebuild. Bare React Native needs
@@ -145,9 +158,16 @@ chat, replies and FCM push in the example, and a fresh development build from th
 fresh Expo 54 / React Native 0.81.5 app with expo-notifications 0.32 builds from the tarball.
 Final check (2026-11-05) against Reception Android SDK 728a9ce from `~/.m2`: typecheck, lint, 77 Jest tests and
 13 Android unit tests pass, the example debug build succeeds, and live chat, the embedded chat with the keyboard, an
-FCM reply through Reception's Expo messaging service with its tap, and logout work on an Android 16 emulator. The run
-found one SDK defect, not fixed here: in a host whose Compose resolves to 1.8 or newer (the example resolves
-foundation-layout 1.9.3), a "Not delivered" message crashes the chat with `NoSuchMethodError: FlowRow(…FlowRowOverflow…)`
-from `SendingStatus.kt`, because the SDK is compiled against Compose 1.7. It must be fixed in the SDK before release.
+FCM reply through Reception's Expo messaging service with its tap, and logout work on an Android 16 emulator. (The
+`FlowRow` crash of a "Not delivered" message on Compose 1.8+ that this run found is fixed in the SDK.)
+
+Expo 58 check (2026-11-10) against Reception Android SDK cb3a636: a fresh `create-expo-app` (Expo 58.0.23, React Native
+0.88.1, with the template's `@expo/ui` 58.0.27, which resolves Material 3 1.5.0-beta01 and Compose 1.12.1) built from
+the tarball as a minified, non-debuggable release with R8 and resource shrinking and no keep rules of its own. On an
+Android 16 emulator the chat sheet, sending, photos, team replies and unread, the embedded chat in the template's tab
+layout with the keyboard, dark mode, German, every FCM push case (foreground, chat open, background, killed process,
+swiped from Recents), identify, logout, cached history and "Not delivered" with Retry worked, and the app held no push
+token before notifications were allowed. A debug build passed a smoke test. Logcat had no linkage or serialization
+errors.
 
 License: MIT.

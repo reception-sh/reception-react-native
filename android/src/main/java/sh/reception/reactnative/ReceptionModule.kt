@@ -76,6 +76,8 @@ class ReceptionModule : Module() {
       Reception.handlePushNotification(mapOf("reception" to conversationId), openChat)
     }.runOnQueue(Queues.MAIN)
     AsyncFunction("registerForPushIfAuthorized") { Reception.registerForPushIfAuthorized() }.runOnQueue(Queues.MAIN)
+    // A token Firebase issued on its own (Expo's token listener): staged only while notifications are allowed.
+    AsyncFunction("registerPushTokenIfAuthorized") { token: String -> PushToken.register(token) }.runOnQueue(Queues.MAIN)
 
     AsyncFunction("setAppearance") { value: String, revision: Int ->
       bridge.applySetting("appearance", revision) { ReceptionAppearance.apply(value, context) }
