@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 // Runs the Android module's JVM unit tests through the example's Gradle build, which autolinks the module.
-// Needs JDK 17, the Android SDK (ANDROID_HOME), `npx expo prebuild --platform android` in example/, and, until
-// sh.reception:reception is on Maven Central, the SDK in ~/.m2 (see AGENTS.md).
+// Needs JDK 17, the Android SDK (ANDROID_HOME) and `npx expo prebuild --platform android` in example/.
 import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';

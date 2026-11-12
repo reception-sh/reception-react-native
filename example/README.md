@@ -20,8 +20,6 @@ npx expo prebuild --platform android
 npx expo run:android
 ```
 
-`plugins/withMavenLocal.js` adds `mavenLocal()` to the generated Android project only.
-
 This is a development build, not Expo Go. Press Configure, then use the controls to
 exercise the public API. Debug builds alone access `configureForTesting` through
 `requireNativeModule` to connect to localhost. The method is absent from Release

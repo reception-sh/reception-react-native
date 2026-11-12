@@ -15,11 +15,7 @@
         }
       }
     },
-    "plugins": [
-      "react-native-reception",
-      "expo-notifications",
-      "./plugins/withMavenLocal"
-    ],
+    "plugins": ["react-native-reception", "expo-notifications"],
     "android": {
       "package": "sh.reception.receptionReactNativeExample",
       "googleServicesFile": "./google-services.json"

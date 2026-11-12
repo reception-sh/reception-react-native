@@ -29,7 +29,7 @@ The script uses local Git objects only. `scripts/check-ios-sdk` verifies every
 vendored byte and detects added or removed files. Keep both podspecs autolinked;
 Reception remains a separate module with its own resources and MIT license.
 
-The vendor pin must be a released reception-ios tag (currently 1.5.0).
+The vendor pin must be a released reception-ios tag (currently 1.7.1).
 `vendor/ios-sdk.json` records the SDK-reported version, exact commit, base tag and
 release tag. Release order for SDK changes: release and tag reception-ios first,
 run `scripts/sync-ios-sdk <tag>`, verify the tarball, then release
@@ -39,11 +39,10 @@ These steps require an explicit release request.
 ## Android SDK
 
 `android/build.gradle` depends on `sh.reception:reception` from Maven Central; never add
-`mavenLocal()` there. Until the SDK is published, local builds need it in `~/.m2`: copy
-reception-android at HEAD into a scratch directory (`git -C ../reception-android archive HEAD |
-tar -x -C <dir>`), run `./gradlew :reception:publishToMavenLocal` there (never Gradle inside the
-SDK repo while others build), and build the example, whose `plugins/withMavenLocal.js` adds
-`mavenLocal()` to its generated project. Bump the dependency only to a released SDK version.
+`mavenLocal()` there, and bump the dependency only to a released SDK version. To try an unreleased
+SDK, publish it to Maven Local from a scratch copy of reception-android (never Gradle inside the SDK
+repo while others build) and add `mavenLocal()` to the example's generated Android project for
+that build only; never commit it.
 Push coexistence with expo-notifications is decided in ANDROID-PUSH-DESIGN.md.
 
 ## Verification
