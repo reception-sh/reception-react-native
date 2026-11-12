@@ -1,4 +1,4 @@
-// The one rule for which FCM messaging service receives Reception's replies (see ANDROID-PUSH-DESIGN.md). app.plugin.js
+// The one rule for which FCM messaging service receives Reception's replies. app.plugin.js
 // requires it and android/build.gradle runs it, so the app's manifest and the module's always make the same choice:
 // - 'none': @react-native-firebase/messaging resolves. Its service stays; that host calls Reception.handlePushMessage
 //   from a subclass of it (README).

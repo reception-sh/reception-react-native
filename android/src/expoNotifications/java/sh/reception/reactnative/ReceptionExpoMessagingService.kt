@@ -5,7 +5,7 @@ import expo.modules.notifications.service.ExpoFirebaseMessagingService
 import sh.reception.Reception
 
 /**
- * expo-notifications' messaging service with Reception's replies taken out first (see ANDROID-PUSH-DESIGN.md). The
+ * expo-notifications' messaging service with Reception's replies taken out first. The
  * module's manifest declares it above Expo's own service, so Firebase's pipeline (message-id dedupe, delivery
  * acknowledgment) runs once and exactly one side presents each message. Compiled and declared only when
  * messaging-service.js selects it: expo-notifications without React Native Firebase.

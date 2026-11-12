@@ -43,7 +43,8 @@ These steps require an explicit release request.
 SDK, publish it to Maven Local from a scratch copy of reception-android (never Gradle inside the SDK
 repo while others build) and add `mavenLocal()` to the example's generated Android project for
 that build only; never commit it.
-Push coexistence with expo-notifications is decided in ANDROID-PUSH-DESIGN.md.
+How push coexists with expo-notifications is decided in the maintainers' notes, kept outside this
+repository (`../reception-internal/react-native/`); `android/messaging-service.js` states the rule.
 
 ## Verification
 
