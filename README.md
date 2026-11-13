@@ -163,18 +163,7 @@ Verified with fresh iOS development builds and live message/reply delivery:
 Android was verified on Expo 57 / React Native 0.86.3 with an Android 16 emulator: live
 chat, replies and FCM push in the example, and a fresh development build from the tarball. A
 fresh Expo 54 / React Native 0.81.5 app with expo-notifications 0.32 builds from the tarball.
-Final check (2026-11-05) against Reception Android SDK 728a9ce from `~/.m2`: typecheck, lint, 77 Jest tests and
-13 Android unit tests pass, the example debug build succeeds, and live chat, the embedded chat with the keyboard, an
-FCM reply through Reception's Expo messaging service with its tap, and logout work on an Android 16 emulator. (The
-`FlowRow` crash of a "Not delivered" message on Compose 1.8+ that this run found is fixed in the SDK.)
-
-Expo 58 check (2026-11-10) against Reception Android SDK cb3a636: a fresh `create-expo-app` (Expo 58.0.23, React Native
-0.88.1, with the template's `@expo/ui` 58.0.27, which resolves Material 3 1.5.0-beta01 and Compose 1.12.1) built from
-the tarball as a minified, non-debuggable release with R8 and resource shrinking and no keep rules of its own. On an
-Android 16 emulator the chat sheet, sending, photos, team replies and unread, the embedded chat in the template's tab
-layout with the keyboard, dark mode, German, every FCM push case (foreground, chat open, background, killed process,
-swiped from Recents), identify, logout, cached history and "Not delivered" with Retry worked, and the app held no push
-token before notifications were allowed. A debug build passed a smoke test. Logcat had no linkage or serialization
-errors.
+Expo 58 / React Native 0.88.1 was verified on Android with a fresh app: a minified release build with R8 and
+resource shrinking works without keep rules of its own.
 
 License: MIT.
