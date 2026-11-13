@@ -3,6 +3,13 @@
 Native support chat, with replies managed in the Reception dashboard.
 The chat runs entirely in the official Reception SDKs for iOS and Android.
 
+**Reception** is a hosted support chat for mobile apps. Your customers write to you in a native chat inside your app on iOS and Android, and your team replies from the Reception dashboard, Slack or Telegram. This repository is the React Native and Expo package `react-native-reception`; it runs the native iOS and Android SDKs. Android needs 1.6.0 or later.
+
+- **Docs:** [React Native guide](https://reception.sh/docs/react-native) · [All guides](https://reception.sh/docs)
+- **Price:** $30 per month per organization, plus sales tax or VAT where it applies. One subscription covers every app and every team member.
+- **Free trial:** [Create an account](https://reception.sh/login) and set up your app. Your first subscription starts with a 7-day free trial: you add a card in Stripe Checkout, and nothing is charged if you cancel within the 7 days. Before you subscribe, you can reply to your own test device.
+- **Other platforms:** [iOS](https://github.com/reception-sh/reception-ios) · [Android](https://github.com/reception-sh/reception-android) · [React Native](https://github.com/reception-sh/reception-react-native) · [Flutter](https://github.com/reception-sh/reception-flutter)
+
 Requires Expo SDK 54+ (verified 54–58; Expo 58 so far on Android only), React Native 0.81+, React 19.1+,
 iOS 17+ with Xcode 26, and Android 7 (API 24)+ (devices on Android 7.0 itself need
 [one addition](https://reception.sh/docs/troubleshooting#android-7)). Use the React Native and React versions
